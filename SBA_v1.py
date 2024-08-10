@@ -89,23 +89,23 @@ def pw_check(pw) :
         pw_double_check = str(input("Please input the password again : "))
     return True
 
-def login() :
+def login() : # Main log in
     permission_stat = 0 # 1:customer 2:Shopper 3:Admin
     role = str(input("You are : A-Admin / S-Seller / C-Customer ( Please fill in short form ,type NEW to make a new account ) : "))
-    if role == "A" :
+    if role == "A" : # Admin log in
         while admin_login() == False :
             pass
-    elif role == "S" :
+    elif role == "S" : # Seller log in
         while seller_login() == False :
             pass
-    elif role == "C" :
+    elif role == "C" : # Customer log in
         while customer_login() == False :
             pass
-    elif role == "NEW" :
+    elif role == "NEW" : # Creating new account
         while new_user() == False :
             pass
         login()
-    else :
+    else : # Invalid input
         print("Please fill in valid short form (A/S/C/NEW) ! ")
         login()
 
@@ -114,7 +114,7 @@ def admin_login() :
     if login_name in admin_name :
         location = find(admin_name,login_name)
         login_pw = str(input("Hi Admin , Your password is : "))
-        if admin_name[location] == login_name and admin_pw[location] == login_pw :
+        if admin_name[location] == login_name and admin_pw[location] == login_pw : # check if the account matches with the password
             print("Welcome Admin {} !".format(login_name))
             return True
         else :
@@ -128,7 +128,7 @@ def seller_login() :
     if login_name in seller_name :
         location = find(seller_name,login_name)
         login_pw = str(input("Hi Seller , Your password is : "))
-        if seller_name[location] == login_name and seller_pw[location] == login_pw :
+        if seller_name[location] == login_name and seller_pw[location] == login_pw : # check if the account matches with the password
             print("Welcome Seller {} !".format(login_name))
             return True
         else :
@@ -142,7 +142,7 @@ def customer_login() :
     if login_name in customer_name :
         location = find(customer_name,login_name)
         login_pw = str(input("Hi Customer , Your password is : "))
-        if customer_name[location] == login_name and customer_pw[location] == login_pw :
+        if customer_name[location] == login_name and customer_pw[location] == login_pw : # check if the account matches with the password
             print("Welcome Customer {} !".format(login_name))
             return True
         else :
