@@ -11,7 +11,9 @@ customer_name = ["Tommy"]
 customer_pw = ["fivetwone2023"]
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
-# def 
+flag_bit = True
+
+# Searching
 def binary_search(matrix,target) : # Binary search 
     high = len(matrix)-1
     low = 0
@@ -32,6 +34,16 @@ def find(matrix,target) : # To find the index of an item in a list
             return pos
     return False
 
+# Sorting
+def selection_sort(raw_list,index,start) :
+    for i in range(start,len(raw_list)-1) :
+        pos = i 
+        for j in range(i+1,len(raw_list)) :
+            if raw_list[j][index] < raw_list[pos][index] :
+                pos = j
+        raw_list[i],raw_list[pos] = raw_list[pos],raw_list[i]
+
+# Login
 def new_user() :
     new_role = str(input("Register : S-Seller / C-Customer : "))
     if new_role == "S" : # Create new seller
@@ -96,7 +108,7 @@ def login() : # Main log in
     if role == "A" : # Admin log in
         while admin_login() == False :
             pass
-        permission_stat = 1
+        permission_stat = 3
     elif role == "S" : # Seller log in
         while seller_login() == False :
             pass
@@ -104,7 +116,7 @@ def login() : # Main log in
     elif role == "C" : # Customer log in
         while customer_login() == False :
             pass
-        permission_stat = 3
+        permission_stat = 1
     elif role == "NEW" : # Creating new account
         while new_user() == False :
             pass
@@ -161,34 +173,58 @@ def customer_login() :
         print("Username does NOT exist , please try again")
     return False
 
+# Main Menu
 def menu() : # showing the commands available for different roles
     for i in range(50) : print("*" , end="")
     print("\n Welcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
           "Here are the Commands for our online market : \n"
-          "V - view the available goods in our market ".format(p_name))
-    if permission_stat == 1 :
+          "V - View the available goods in our market \n"
+          "SN - Sort the goods by Name \n"
+          "SP - Sort the goods by Price \n"
+          "SID - Sort the goods by the ID".format(p_name))
+    if permission_stat == 3 :
         print("AE - Admin Editing the goods")
     elif permission_stat == 2 :
         print("M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
-    elif permission_stat == 3 :
+    elif permission_stat == 1 :
         print("VC - View your shopping Cart \n"
               "EC - Edit your shopping Cart"
               "CO - Check Out of your shopping cart")
         
-def view() :
-    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
-        goods = csv.reader(goods_info)
-        for i in range(56) : print("-" , end="")
-        print("")
-        for row in goods :
-            print('| {:>8} | {:>4} | {:>12} | {:>8} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
-        for i in range(56) : print("-" , end="")
+def menu_control(access) :
+    global flag_bit
+    control = str(input("Your command is : "))
+    if control == "V" :
+        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
+            goods = csv.reader(goods_info)
+            view(goods)
+    elif control == "SN" :
+        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
+            goods = list(csv.reader(goods_info))
+            selection_sort(goods,0,1)
+            view(goods)
+    elif control == "AE" :
+        if access == 3 :
+            pass
+        else :
+            print("ACCESS DENIED : Admin ONLY")
+    elif control == "QUIT" :
+        flag_bit = False
+    
+
+def view(data) :
+    for i in range(56) : print("-" , end="")
+    print("")
+    for row in data :
+        print('| {:>8} | {:>4} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
+    for i in range(56) : print("-" , end="")
 # Main Loop
 if __name__ == "__main__" :
     login()
-    menu()
-    view()
+    while flag_bit :
+        menu()
+        menu_control(permission_stat)
 
 #with open("D:\Python\Book1.csv","r+", newline='') as goods_info :
 #    goods = csv.reader(goods_info, delimiter=' ', quotechar='|')
