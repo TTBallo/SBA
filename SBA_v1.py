@@ -91,7 +91,7 @@ def pw_check(pw) :
 
 def login() : # Main log in
     global permission_stat
-    for i in range(50) : print("-" , end="")
+    for i in range(50) : print("=" , end="")
     role = str(input("\n You are : A - Admin / S - Seller / C - Customer / NEW - New account registration( Please fill in short form ) : "))
     if role == "A" : # Admin log in
         while admin_login() == False :
@@ -176,11 +176,19 @@ def menu() : # showing the commands available for different roles
               "EC - Edit your shopping Cart"
               "CO - Check Out of your shopping cart")
         
-
+def view() :
+    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
+        goods = csv.reader(goods_info)
+        for i in range(56) : print("-" , end="")
+        print("")
+        for row in goods :
+            print('| {:>8} | {:>4} | {:>12} | {:>8} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
+        for i in range(56) : print("-" , end="")
 # Main Loop
 if __name__ == "__main__" :
     login()
     menu()
+    view()
 
 #with open("D:\Python\Book1.csv","r+", newline='') as goods_info :
 #    goods = csv.reader(goods_info, delimiter=' ', quotechar='|')
