@@ -12,7 +12,7 @@ customer_pw = ["fivetwone2023"]
 
 
 # def 
-def binary_search(matrix,target) :
+def binary_search(matrix,target) : # Binary search 
     high = len(matrix)-1
     low = 0
     mid = 0
@@ -25,7 +25,8 @@ def binary_search(matrix,target) :
         else :
             high = mid -1
     return False
-def find(matrix,target) :
+
+def find(matrix,target) : # To find the index of an item in a list
     for pos , item in enumerate(matrix) :
         if item == target :
             return pos
@@ -33,15 +34,15 @@ def find(matrix,target) :
 
 def new_user() :
     new_role = str(input("Register : S-Seller / C-Customer : "))
-    if new_role == "S" :
-        new_name = str(input("Your name is : "))
-        if new_name not in seller_name :
+    if new_role == "S" : # Create new seller
+        new_name = str(input("Your name is : ")) 
+        if new_name not in seller_name : # check if the new name does not repeat 
             seller_name.append(new_name)
         else :
             print("Your name has been used , try again !")
             return False
         new_pw = str(input("Your password is : "))
-        while pw_check(new_pw) is False :
+        while pw_check(new_pw) is False : # data validation
             new_pw = str(input("Your password is : "))
         seller_pw.append(new_pw)
         return True
@@ -82,6 +83,10 @@ def pw_check(pw) :
     if pw.count(' ') > 0 :
         print("No spaces are allowed")
         return False
+    pw_double_check = str(input("Please input the password again ")) # data verificaton by entering the data twice
+    while pw_double_check != pw :
+        print("The second password is NOT the same with the first one")
+        pw_double_check = str(input("Please input the password again : "))
     return True
 
 def login() :
