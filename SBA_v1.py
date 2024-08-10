@@ -9,8 +9,8 @@ seller_name = ["Garden"]
 seller_pw = ["Garden123"]
 customer_name = ["Tommy"]
 customer_pw = ["fivetwone2023"]
-
-
+permission_stat = 0 # 1:customer 2:Shopper 3:Admin
+p_name = "" # the name of the user
 # def 
 def binary_search(matrix,target) : # Binary search 
     high = len(matrix)-1
@@ -90,17 +90,21 @@ def pw_check(pw) :
     return True
 
 def login() : # Main log in
-    permission_stat = 0 # 1:customer 2:Shopper 3:Admin
-    role = str(input("You are : A-Admin / S-Seller / C-Customer ( Please fill in short form ,type NEW to make a new account ) : "))
+    global permission_stat
+    for i in range(50) : print("-" , end="")
+    role = str(input("\n You are : A - Admin / S - Seller / C - Customer / NEW - New account registration( Please fill in short form ) : "))
     if role == "A" : # Admin log in
         while admin_login() == False :
             pass
+        permission_stat = 1
     elif role == "S" : # Seller log in
         while seller_login() == False :
             pass
+        permission_stat = 2
     elif role == "C" : # Customer log in
         while customer_login() == False :
             pass
+        permission_stat = 3
     elif role == "NEW" : # Creating new account
         while new_user() == False :
             pass
@@ -110,12 +114,14 @@ def login() : # Main log in
         login()
 
 def admin_login() :
+    global p_name
     login_name = str(input("Hi Admin , Your username is : "))
     if login_name in admin_name :
         location = find(admin_name,login_name)
         login_pw = str(input("Hi Admin , Your password is : "))
         if admin_name[location] == login_name and admin_pw[location] == login_pw : # check if the account matches with the password
             print("Welcome Admin {} !".format(login_name))
+            p_name = login_name
             return True
         else :
             print("Your password is NOT correct , please try again")
@@ -124,12 +130,14 @@ def admin_login() :
     return False
 
 def seller_login() :
+    global p_name
     login_name = str(input("Hi Seller , Your username is : "))
     if login_name in seller_name :
         location = find(seller_name,login_name)
         login_pw = str(input("Hi Seller , Your password is : "))
         if seller_name[location] == login_name and seller_pw[location] == login_pw : # check if the account matches with the password
             print("Welcome Seller {} !".format(login_name))
+            p_name = login_name
             return True
         else :
             print("Your password is NOT correct , please try again")
@@ -138,12 +146,14 @@ def seller_login() :
     return False
 
 def customer_login() :
+    global p_name
     login_name = str(input("Hi Customer , Your username is : "))
     if login_name in customer_name :
         location = find(customer_name,login_name)
         login_pw = str(input("Hi Customer , Your password is : "))
         if customer_name[location] == login_name and customer_pw[location] == login_pw : # check if the account matches with the password
             print("Welcome Customer {} !".format(login_name))
+            p_name = login_name
             return True
         else :
             print("Your password is NOT correct , please try again")
@@ -151,9 +161,26 @@ def customer_login() :
         print("Username does NOT exist , please try again")
     return False
 
-# Main Loop
+def menu() : # showing the commands available for different roles
+    for i in range(50) : print("*" , end="")
+    print("\n Welcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
+          "Here are the Commands for our online market : \n"
+          "V - view the available goods in our market ".format(p_name))
+    if permission_stat == 1 :
+        print("AE - Admin Editing the goods")
+    elif permission_stat == 2 :
+        print("M - Modify the status of goods by YOUR brand \n"
+              "D - Delete the goods by YOUR brand")
+    elif permission_stat == 3 :
+        print("VC - View your shopping Cart \n"
+              "EC - Edit your shopping Cart"
+              "CO - Check Out of your shopping cart")
+        
 
-login()
+# Main Loop
+if __name__ == "__main__" :
+    login()
+    menu()
 
 #with open("D:\Python\Book1.csv","r+", newline='') as goods_info :
 #    goods = csv.reader(goods_info, delimiter=' ', quotechar='|')
