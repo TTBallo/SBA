@@ -273,9 +273,10 @@ def add_seller(p,c) : # write the new data to the csv file with the company name
     if p == 2 :
         n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" 
                              "*Seperate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
-        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8') as goods_info :
-            for x in range(len(list(csv.reader(goods_info)))) :
-                if id in goods_info[x][1] :
+        with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+            goods = list(csv.reader(goods_info))  
+            for x in range(1,len(goods)) :
+                if id == goods[x][1] :
                     print("ERROR : The ID of the good should be UNIQUE ")
                     return False
         add([n,id,c,p,s])
