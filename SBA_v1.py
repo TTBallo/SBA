@@ -69,7 +69,7 @@ def insertion_sort(raw_list,index,start) : #pull the item back until find a corr
         raw_list[next+1] = store2d
 
 def sorting_show(way) :
-    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8') as goods_info :
+    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
             goods = list(csv.reader(goods_info))     
             if way == "SID" :
                 insertion_sort(goods,1,2) 
