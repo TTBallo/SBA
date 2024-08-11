@@ -34,8 +34,16 @@ def find(matrix,target) : # To find the index of an item in a list
             return pos
     return False
 
+def searching(raw_list,index,item) :
+    new_list = []
+    new_list.append(raw_list[0])
+    for row in raw_list :
+        if item in row[index] and row != raw_list[0]:
+            new_list.append(row)
+    return new_list
+
 # Sorting with 2d array
-def selection_sort(raw_list,index,start) :
+def selection_sort(raw_list,index,start) : #find the smallest item and switch
     for i in range(start,len(raw_list)-1) :
         pos = i 
         for j in range(i+1,len(raw_list)) :
@@ -43,12 +51,40 @@ def selection_sort(raw_list,index,start) :
                 pos = j
         raw_list[i],raw_list[pos] = raw_list[pos],raw_list[i]
 
-def insertion_sort(raw_list,index,start) :
+def bubble_sort(raw_list,index,start) : #switch the nearby items 
     for i in range(start,len(raw_list)) :
         current_pos = i
         while current_pos >= start and raw_list[current_pos][index] < raw_list[current_pos-1][index] :
             raw_list[current_pos][index] , raw_list[current_pos-1][index] = raw_list[current_pos-1][index] ,  raw_list[current_pos][index]
             current_pos -=1 
+
+def insertion_sort(raw_list,index,start) : #pull the item back until find a correct place
+    for i in range(start,len(raw_list)) :
+        store2d = raw_list[i]
+        store = raw_list[i][index]
+        next = i-1
+        while next >= 0 and raw_list[next][index] > store :
+            raw_list[next+1] = raw_list[next]
+            next -=1
+        raw_list[next+1] = store2d
+
+def sorting_show(way) :
+    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
+            goods = list(csv.reader(goods_info))     
+            if way == "SID" :
+                insertion_sort(goods,1,2) 
+            elif way == "SP" :
+                bubble_sort(goods,3,2)
+            elif way == "SN" :
+                selection_sort(goods,0,1)
+            elif way == "S" :
+               view(searching(goods,0,str(input("The name of the good you want ( Case Sensitive ): "))))
+               return None
+            elif way == "SWID" :
+               view(searching(goods,1,str(input("The ID of the good you want : "))))
+               return None
+            view(goods)
+
 # Login
 def new_user() :
     new_role = str(input("Register : S-Seller / C-Customer : "))
@@ -191,37 +227,28 @@ def menu() : # showing the commands available for different roles
           "V - View the available goods in our market \n"
           "SN - Sort the goods by Name \n"
           "SP - Sort the goods by Price \n"
-          "SID - Sort the goods by the ID"
-          "S - Search for specific goods by name"
-          "SWID - Search for specific goods with the goods ID"
+          "SID - Sort the goods by the ID\n"
+          "S - Search for specific goods by name\n"
+          "SWID - Search for specific goods with the goods ID\n"
           "F - Filter the goods with unwanted brand".format(p_name))
-    if permission_stat == 3 :
+    if permission_stat == 3 : # admin can edit without limitation
         print("AE - Admin Editing the goods")
-    elif permission_stat == 2 :
+    elif permission_stat == 2 : # seller cannot use shopping cart but can change and add their goods
         print("M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
-    elif permission_stat == 1 :
+    elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("VC - View your shopping Cart \n"
               "EC - Edit your shopping Cart"
               "CO - Check Out of your shopping cart")
-        
+    print("QUIT - Quit this application")   
+ 
 def menu_control(access) :
     global flag_bit
     control = str(input("Your command is : "))
-    if control == "V" :
-        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
-            goods = csv.reader(goods_info)
-            view(goods)
-    elif control == "SN" :
-        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
-            goods = list(csv.reader(goods_info))
-            selection_sort(goods,0,1)
-            view(goods)
-    elif control == "SP" :
-        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
-            goods = list(csv.reader(goods_info))
-            insertion_sort(goods,3,2)
-            view(goods)
+
+    if control in ["V","SN","SP","SID","S","SWID"] :
+        sorting_show(control)
+
     elif control == "AE" :
         if access == 3 :
             pass
@@ -232,11 +259,11 @@ def menu_control(access) :
 
 
 def view(data) :
-    for i in range(56) : print("-" , end="")
+    for i in range(58) : print("-" , end="")
     print("")
     for row in data :
         print('| {:>8} | {:>4} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
-    for i in range(56) : print("-" , end="")
+    for i in range(58) : print("-" , end="")
 
 # Main Loop
 if __name__ == "__main__" :
