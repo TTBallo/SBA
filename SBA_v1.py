@@ -230,7 +230,6 @@ def menu() : # showing the commands available for different roles
           "SID - Sort the goods by the ID\n"
           "S - Search for specific goods by name\n"
           "SWID - Search for specific goods with the goods ID\n"
-          ###"SWSID - Search for specific goods with SPECIFIC ID ( ONLY goods with exactly the same ID will be presented )" UNDESIRABLE COMMAND ###
           "F - Filter the goods with unwanted brand".format(p_name))
     if permission_stat == 3 : # admin can edit without limitation
         print("AE - Admin Editing the goods")
@@ -252,10 +251,11 @@ def menu_control(access) :
 
     if control in ["V","SN","SP","SID","S","SWID"] :
         sorting_show(control)
+
         
-    elif control == "A" :
-        while add_seller(permission_stat,p_name) == False :
-            pass
+    #elif control == "A" :
+    #    while add_seller(permission_stat,p_name) == False :
+    #        pass
 
     elif control == "QUIT" :
         flag_bit = False
