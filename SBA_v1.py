@@ -69,7 +69,7 @@ def insertion_sort(raw_list,index,start) : #pull the item back until find a corr
         raw_list[next+1] = store2d
 
 def sorting_show(way) :
-    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8') as goods_info :
+    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
             goods = list(csv.reader(goods_info))     
             if way == "SID" :
                 insertion_sort(goods,1,2) 
@@ -234,8 +234,7 @@ def menu() : # showing the commands available for different roles
     if permission_stat == 3 : # admin can edit without limitation
         print("AE - Admin Editing the goods")
     elif permission_stat == 2 : # seller cannot use shopping cart but can change and add their goods
-        print("A - Add goods of YOUR brand "
-              "M - Modify the status of goods by YOUR brand \n"
+        print("M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("VC - View your shopping Cart \n"
@@ -244,48 +243,26 @@ def menu() : # showing the commands available for different roles
     print("QUIT - Quit this application")   
  
 def menu_control(access) :
-    global permission_stat
     global flag_bit
-    global p_name
     control = str(input("Your command is : "))
 
     if control in ["V","SN","SP","SID","S","SWID"] :
         sorting_show(control)
-
         
-    #elif control == "A" :
-    #    while add_seller(permission_stat,p_name) == False :
-    #        pass
+    elif control == "A" :
+        while add_seller(permission_stat,p_name) == False :
+            pass
 
     elif control == "QUIT" :
         flag_bit = False
 
 
-def view(data) : # output the formatted table-form of data of goods
+def view(data) :
     for i in range(58) : print("-" , end="")
     print("")
     for row in data :
-        print('| {:>8} | {:>5} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
+        print('| {:>8} | {:>4} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
     for i in range(58) : print("-" , end="")
-    #for i in range(6) : print("")
-
-def add_seller(p,c) : # write the new data to the csv file with the company name filled
-    if p == 2 :
-        n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" 
-                             "*Seperate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
-        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8') as goods_info :
-            for x in range(len(csv.reader(goods_info))) :
-                if id in goods_info[x][1] :
-                    print("ERROR : The ID of the good should be UNIQUE ")
-                    return False
-        add([n,id,c,p,s])
-    else :
-        print("ACCESS DENIED : Seller ONLY")
-
-def add(data) : # write the new data to the csv file
-    with open("D:\Python\Book1.csv","a", newline='', encoding='utf-8') as goods_info :
-        writer = csv.writer(goods_info)
-        writer.writerow(data)
 
 # Main Loop
 if __name__ == "__main__" :
