@@ -12,7 +12,7 @@ General function :
 - Sort the Goods list ( with different sorting methods )
 - Search the desire goods
 - Filter the undesired good from the goods list
-* with different commands
+  (with different commands)
 
 Unique function :
 1. Customer
