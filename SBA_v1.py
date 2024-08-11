@@ -191,7 +191,10 @@ def menu() : # showing the commands available for different roles
           "V - View the available goods in our market \n"
           "SN - Sort the goods by Name \n"
           "SP - Sort the goods by Price \n"
-          "SID - Sort the goods by the ID".format(p_name))
+          "SID - Sort the goods by the ID"
+          "S - Search for specific goods by name"
+          "SWID - Search for specific goods with the goods ID"
+          "F - Filter the goods with unwanted brand".format(p_name))
     if permission_stat == 3 :
         print("AE - Admin Editing the goods")
     elif permission_stat == 2 :
