@@ -8,7 +8,7 @@ admin_pw = ["123"]
 seller_name = ["Garden"]
 seller_pw = ["Garden123"]
 customer_name = ["Tommy"]
-customer_pw = ["fivetwone2023"]
+customer_pw = ["5212023"]
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 flag_bit = True
@@ -34,7 +34,7 @@ def find(matrix,target) : # To find the index of an item in a list
             return pos
     return False
 
-# Sorting
+# Sorting with 2d array
 def selection_sort(raw_list,index,start) :
     for i in range(start,len(raw_list)-1) :
         pos = i 
@@ -43,6 +43,12 @@ def selection_sort(raw_list,index,start) :
                 pos = j
         raw_list[i],raw_list[pos] = raw_list[pos],raw_list[i]
 
+def insertion_sort(raw_list,index,start) :
+    for i in range(start,len(raw_list)) :
+        current_pos = i
+        while current_pos >= start and raw_list[current_pos][index] < raw_list[current_pos-1][index] :
+            raw_list[current_pos][index] , raw_list[current_pos-1][index] = raw_list[current_pos-1][index] ,  raw_list[current_pos][index]
+            current_pos -=1 
 # Login
 def new_user() :
     new_role = str(input("Register : S-Seller / C-Customer : "))
@@ -132,6 +138,7 @@ def admin_login() :
         location = find(admin_name,login_name)
         login_pw = str(input("Hi Admin , Your password is : "))
         if admin_name[location] == login_name and admin_pw[location] == login_pw : # check if the account matches with the password
+            print("")
             print("Welcome Admin {} !".format(login_name))
             p_name = login_name
             return True
@@ -148,6 +155,7 @@ def seller_login() :
         location = find(seller_name,login_name)
         login_pw = str(input("Hi Seller , Your password is : "))
         if seller_name[location] == login_name and seller_pw[location] == login_pw : # check if the account matches with the password
+            print("")
             print("Welcome Seller {} !".format(login_name))
             p_name = login_name
             return True
@@ -164,6 +172,7 @@ def customer_login() :
         location = find(customer_name,login_name)
         login_pw = str(input("Hi Customer , Your password is : "))
         if customer_name[location] == login_name and customer_pw[location] == login_pw : # check if the account matches with the password
+            print("")
             print("Welcome Customer {} !".format(login_name))
             p_name = login_name
             return True
@@ -175,8 +184,9 @@ def customer_login() :
 
 # Main Menu
 def menu() : # showing the commands available for different roles
+    print("")
     for i in range(50) : print("*" , end="")
-    print("\n Welcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
+    print("\nWelcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
           "Here are the Commands for our online market : \n"
           "V - View the available goods in our market \n"
           "SN - Sort the goods by Name \n"
@@ -204,6 +214,11 @@ def menu_control(access) :
             goods = list(csv.reader(goods_info))
             selection_sort(goods,0,1)
             view(goods)
+    elif control == "SP" :
+        with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
+            goods = list(csv.reader(goods_info))
+            insertion_sort(goods,3,2)
+            view(goods)
     elif control == "AE" :
         if access == 3 :
             pass
@@ -211,7 +226,7 @@ def menu_control(access) :
             print("ACCESS DENIED : Admin ONLY")
     elif control == "QUIT" :
         flag_bit = False
-    
+
 
 def view(data) :
     for i in range(56) : print("-" , end="")
@@ -219,6 +234,7 @@ def view(data) :
     for row in data :
         print('| {:>8} | {:>4} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
     for i in range(56) : print("-" , end="")
+
 # Main Loop
 if __name__ == "__main__" :
     login()
@@ -226,8 +242,3 @@ if __name__ == "__main__" :
         menu()
         menu_control(permission_stat)
 
-#with open("D:\Python\Book1.csv","r+", newline='') as goods_info :
-#    goods = csv.reader(goods_info, delimiter=' ', quotechar='|')
-#    for row in goods :
-#        print(''.join(row))
-#        #print(row)
