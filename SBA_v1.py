@@ -256,6 +256,8 @@ def menu_control(access) :
     elif control == "A" :
         while add_seller(permission_stat,p_name) == False :
             pass
+    elif control == "M" :
+        pass
 
     elif control == "QUIT" :
         flag_bit = False
@@ -282,13 +284,16 @@ def add_seller(p,c) : # write the new data to the csv file with the company name
         add([n,id,c,p,s])
     else :
         print("ACCESS DENIED : Seller ONLY")
+    return True
 
 def add(data) : # write the new data to the csv file
     with open("D:\Python\Book1.csv","a", newline='', encoding='utf-8') as goods_info :
         writer = csv.writer(goods_info)
         writer.writerow(data)
 
-# Main Loop
+def modify() :
+    
+ # Main Loop
 if __name__ == "__main__" :
     login()
     while flag_bit :
