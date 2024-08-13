@@ -1,7 +1,7 @@
 # Module import
 import csv
 import re
-
+import time
 # Global variable
 admin_name = ["admin"]
 admin_pw = ["123"]
@@ -220,6 +220,7 @@ def customer_login() :
 
 # Main Menu
 def menu() : # showing the commands available for different roles
+    time.sleep(3)
     print("")
     for i in range(50) : print("*" , end="")
     print("\nWelcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
@@ -258,23 +259,31 @@ def menu_control(access) :
             pass
 
     elif control == "M" :
-        change = str(input("The change of the good is (NAME/COMPANY/PRICE/STOCK) :"))
-        input_dicts = {"NAME":0,"COMPANY":2,"PRICE":3,"STOCK":4}
-        if change in input_dicts :
-            id = str(input("The ID of the good is :"))
-            new_value = str(input("The new value of the good is :"))
-            modify(p_name,id,input_dicts[change],new_value)
-        elif change == 1 :
-            print("The ID of the good is NOT allowed to Change")
-        else :
-            print("INVALID input , please try again")
+        if permission_check(permission_stat,2) :
+            change = str(input("The change of the good is (NAME/COMPANY/PRICE/STOCK) :"))
+            input_dicts = {"NAME":0,"COMPANY":2,"PRICE":3,"STOCK":4}
+            if change in input_dicts :
+                id = str(input("The ID of the good is :"))
+                new_value = str(input("The new value of the good is :"))
+                modify(p_name,id,input_dicts[change],new_value)
+            elif change == 1 :
+                print("The ID of the good is NOT allowed to Change")
+            else :
+                print("INVALID input , please try again")
+
     elif control == "D" :
-        delete_id = str(input("The ID of the good you want to delete is :"))
-        delete(p_name,delete_id)
+        if permission_check(permission_stat,2) :
+            delete_id = str(input("The ID of the good you want to delete is :"))
+            delete(p_name,delete_id)
 
     elif control == "QUIT" :
         flag_bit = False
 
+def permission_check(p,r) : # check if the permission of the log in allows to use that function
+    p_dict = {1:"Access Denied : Customer Only",2:"Access Denied : Seller Only",3:"Access Denied : Admin Only"}
+    if p!=r :
+        print(p_dict[r])
+    return p==r
 
 def view(data) : # output the formatted table-form of data of goods
     for i in range(59) : print("-" , end="")
@@ -319,6 +328,7 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
     writeData(lines)
 
 def delete(company,id) :
+    finding = False
     with open('D:\Python\Book1.csv',"r", newline='', encoding='utf-8') as f:
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
