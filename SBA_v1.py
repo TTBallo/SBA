@@ -235,12 +235,12 @@ def menu() : # showing the commands available for different roles
     if permission_stat == 3 : # admin can edit without limitation
         print("AE - Admin Editing the goods")
     elif permission_stat == 2 : # seller cannot use shopping cart but can change and add their goods
-        print("A - Add goods of YOUR brand "
+        print("A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("VC - View your shopping Cart \n"
-              "EC - Edit your shopping Cart"
+              "EC - Edit your shopping Cart\n"
               "CO - Check Out of your shopping cart")
     print("QUIT - Quit this application")   
  
@@ -256,30 +256,43 @@ def menu_control(access) :
     elif control == "A" :
         while add_seller(permission_stat,p_name) == False :
             pass
+
     elif control == "M" :
-        pass
+        change = str(input("The change of the good is (NAME/COMPANY/PRICE/STOCK) :"))
+        input_dicts = {"NAME":0,"COMPANY":2,"PRICE":3,"STOCK":4}
+        if change in input_dicts :
+            id = str(input("The ID of the good is :"))
+            new_value = str(input("The new value of the good is :"))
+            modify(p_name,id,input_dicts[change],new_value)
+        elif change == 1 :
+            print("The ID of the good is NOT allowed to Change")
+        else :
+            print("INVALID input , please try again")
+    elif control == "D" :
+        delete_id = str(input("The ID of the good you want to delete is :"))
+        delete(p_name,delete_id)
 
     elif control == "QUIT" :
         flag_bit = False
 
 
 def view(data) : # output the formatted table-form of data of goods
-    for i in range(58) : print("-" , end="")
+    for i in range(59) : print("-" , end="")
     print("")
     for row in data :
         print('| {:>8} | {:>5} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
-    for i in range(58) : print("-" , end="")
-    #for i in range(6) : print("")
+    for i in range(59) : print("-" , end="")
+    for i in range(2) : print("")
 
 def add_seller(p,c) : # write the new data to the csv file with the company name filled
-    if p == 2 :
-        n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" 
+    if p == 2 : # only seller can add goods
+        n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
                              "*Seperate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
         with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
             goods = list(csv.reader(goods_info))  
             for x in range(1,len(goods)) :
                 if id == goods[x][1] :
-                    print("ERROR : The ID of the good should be UNIQUE ")
+                    print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
                     return False
         add([n,id,c,p,s])
     else :
@@ -291,8 +304,39 @@ def add(data) : # write the new data to the csv file
         writer = csv.writer(goods_info)
         writer.writerow(data)
 
-def modify() :
-    
+def modify(company,id,new_pos,new_variable) : # changing the data of goods by overwriting the original data of the goods
+    finding = False
+    with open('D:\Python\Book1.csv',"r", newline='', encoding='utf-8') as f:
+        r = csv.reader(f) #read the original data
+        lines = list(r) #change the raw data into lists for better indexation
+        for pos,row in enumerate(lines) :
+                if pos != 0 and row[2] == company and row[1] == id : # if the ID belongs to the company that logged in
+                    lines[pos][new_pos] = new_variable # Change the data
+                    finding = True
+        if not finding :
+            print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
+            return False
+    writeData(lines)
+
+def delete(company,id) :
+    with open('D:\Python\Book1.csv',"r", newline='', encoding='utf-8') as f:
+        r = csv.reader(f) #read the original data
+        lines = list(r) #change the raw data into lists for better indexation
+        for pos,row in enumerate(lines) :
+                if pos != 0 and row[2] == company and row[1] == id :
+                    lines.remove(row)
+                    finding = True
+        if not finding :
+            print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
+            return False
+    writeData(lines)
+                
+
+def writeData(lines) :
+    with open("D:\Python\Book1.csv","w", newline='', encoding='utf-8') as goods_info :
+        writer = csv.writer(goods_info) # overwrite the data into the file by replacing old data and writing new data
+        writer.writerows(lines)
+
  # Main Loop
 if __name__ == "__main__" :
     login()
