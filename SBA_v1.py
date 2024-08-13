@@ -286,11 +286,11 @@ def permission_check(p,r) : # check if the permission of the log in allows to us
     return p==r
 
 def view(data) : # output the formatted table-form of data of goods
-    for i in range(59) : print("-" , end="")
+    for i in range(68) : print("-" , end="")
     print("")
     for row in data :
-        print('| {:>8} | {:>5} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
-    for i in range(59) : print("-" , end="")
+        print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
+    for i in range(68) : print("-" , end="")
     for i in range(2) : print("")
 
 def add_seller(p,c) : # write the new data to the csv file with the company name filled
