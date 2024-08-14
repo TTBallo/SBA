@@ -2,6 +2,8 @@
 import csv
 import re
 import time
+import datetime
+
 # Global variable
 admin_name = ["admin"]
 admin_pw = ["123"]
@@ -9,6 +11,7 @@ seller_name = ["Garden"]
 seller_pw = ["Garden123"]
 customer_name = ["Tommy"]
 customer_pw = ["5212023"]
+customer_bday = [datetime.datetime(2023,5,21)]
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 flag_bit = True
@@ -111,11 +114,20 @@ def new_user() :
         while pw_check(new_pw) is False :
             new_pw = str(input("Your password is : "))
         customer_pw.append(new_pw)
+        customer_bday.append(date_input())
         return True
     else :
         print("Please fill in S / C !")
         new_user()
-            
+
+def date_input() :
+    try :
+        x,y,z= input("Enter your date of Birth (YYYY/MM/DD) :").split("/")
+        new_date = datetime.datetime(int(x),int(y),int(z))
+        return new_date
+    except ValueError: # error handling
+        print("RANGE of Date must between 1/1/1 to 9999/12/31 and The inputs must be INTEGER")
+        date_input()    
 
 def pw_check(pw) :
     if len(pw) <8:
@@ -137,7 +149,7 @@ def pw_check(pw) :
     if pw.count(' ') > 0 :
         print("No spaces are allowed")
         return False
-    pw_double_check = str(input("Please input the password again ")) # data verificaton by entering the data twice
+    pw_double_check = str(input("Please input the password again :")) # data verificaton by entering the data twice
     while pw_double_check != pw :
         print("The second password is NOT the same with the first one")
         pw_double_check = str(input("Please input the password again : "))
@@ -231,8 +243,7 @@ def menu() : # showing the commands available for different roles
           "SID - Sort the goods by the ID\n"
           "S - Search for specific goods by name\n"
           "SWID - Search for specific goods with the goods ID\n"
-          ###"SWSID - Search for specific goods with SPECIFIC ID ( ONLY goods with exactly the same ID will be presented )" UNDESIRABLE COMMAND ###
-          "F - Filter the goods with unwanted brand".format(p_name))
+          "F - Filter the goods with unwanted brand".format(p_name)) #<--------------
     if permission_stat == 3 : # admin can edit without limitation
         print("AE - Admin Editing the goods")
     elif permission_stat == 2 : # seller cannot use shopping cart but can change and add their goods
@@ -240,9 +251,9 @@ def menu() : # showing the commands available for different roles
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
-        print("VC - View your shopping Cart \n"
-              "EC - Edit your shopping Cart\n"
-              "CO - Check Out of your shopping cart")
+        print("VC - View your shopping Cart \n" #<--------------
+              "EC - Edit your shopping Cart\n" #<--------------
+              "CO - Check Out of your shopping cart") #<--------------
     print("QUIT - Quit this application")   
  
 def menu_control(access) :
