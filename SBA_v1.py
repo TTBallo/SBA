@@ -319,9 +319,47 @@ def menu_control(access) :
         else :
             print("Access Denied : Customer ONLY")
             return False    
-          
+
+    elif control == "EC" :
+        if permission_check(permission_stat,1) :
+            try :
+                c_id = input("The ID of the goods :")
+                c_q = int(input("The NEW quantity of the goods :"))
+            except ValueError :
+                print("Your input must be a integer") # error handling
+                return False
+            with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+                goods = list(csv.reader(goods_info))  
+                for x in range(1,len(goods)) :
+                    if int(goods[x][4]) < c_q and goods[x][1] == c_id:
+                        print("ERROR : Insufficient quantity of goods")
+                        return False
+            change_cart(c_id,c_q)
+        else :
+            print("Access Denied : Customer ONLY")
+            return False
+        
+    elif control == "DC" :
+        if permission_check(permission_stat,1) :
+            c_id = input("The ID of the goods :")
+            for x in range(len(shopping_cart)) :
+                if shopping_cart[x][1] == c_id :
+                    shopping_cart.pop(shopping_cart[x])
+                    return True
+            print("ERROR : ID not found in the shopping cart")
+            return False 
+        else :
+            print("Access Denied : Customer ONLY")
+            return False
+    elif control == "CO" :
+        total = check_out()
+        print("The total amount will be ${} ".format(total))
+
     elif control == "QUIT" :
         flag_bit = False
+
+    else :
+        print("Commend NOT identified")
 
 def permission_check(p,r) : # check if the permission of the log in allows to use that function
     p_dict = {1:"Access Denied : Customer Only",2:"Access Denied : Seller Only",3:"Access Denied : Admin Only"}
@@ -347,7 +385,7 @@ def add_goods(p,c) : # write the new data to the csv file with the company name 
                 print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
                 return False
     add([n,id,c,p,s]) 
-    print("Command ADD executed with successful")
+    print("Command ADD has successfully executed")
     return True
 
 def add(data) : # write the new data to the csv file
@@ -368,7 +406,7 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
             print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
     writeData(lines)
-    print("Command MODIFY executed with successful")
+    print("Command MODIFY has successfully executed")
 
 def delete(company,id) :
     finding = False
@@ -383,7 +421,7 @@ def delete(company,id) :
             print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
     writeData(lines)
-    print("Command DELETE executed with successful")
+    print("Command DELETE has successfully executed")
                 
 def writeData(lines) :
     with open("D:\Python\Book1.csv","w", newline='', encoding='utf-8') as goods_info :
@@ -396,14 +434,37 @@ def add_cart(id,quantity) :
     with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
-            if id == goods[x][1] :
-                shopping_cart.append([goods[x][0],goods[x][1],goods[x][3],quantity,(float(goods[x][3])*float(quantity))])
-                finding = True
-                return True
+            if id == goods[x][1] : 
+                if int(goods[x][4]) >= quantity : # check if the stock is sufficient for purchase
+                    shopping_cart.append([goods[x][0],goods[x][1],goods[x][3],quantity,(float(goods[x][3])*float(quantity))])
+                    finding = True
+                    print("Command ADD CART has successfully executed")
+                    return True
+                else :
+                    print("ERROR : Insufficient goods for purchase")
+                    return False
         if finding == False :
             print("ERROR : ID do NOT exists")
             return False
-        
+
+def change_cart(id,quantity) : # changing the data of goods by overwriting the original data of the goods
+    finding = False
+    for pos,row in enumerate(shopping_cart) : 
+        if pos != 0 and row[1] == id : # find the goods 
+            shopping_cart[pos][3] = quantity # Change the quantity
+            shopping_cart[pos][4] = float(shopping_cart[pos][2])*float(shopping_cart[pos][3]) # change the total
+            finding = True # end the finding process
+            print("Command CHANGE CART has successfully executed")
+    if not finding :
+        print("The ID does NOT in the Shopping cart or the ID does NOT EXIST")
+        return False  
+
+def check_out() :
+    total = 0
+    for pos,row in enumerate(shopping_cart) :
+        if pos != 0 : 
+            total += float(shopping_cart[pos][4])
+    return total
 
  # Main Loop
 if __name__ == "__main__" :
