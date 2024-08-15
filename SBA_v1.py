@@ -12,6 +12,7 @@ seller_pw = ["Garden123"]
 customer_name = ["Tommy"]
 customer_pw = ["5212023"]
 customer_bday = [datetime.datetime(2023,5,21)]
+shopping_cart = []
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 flag_bit = True
@@ -244,12 +245,12 @@ def menu() : # showing the commands available for different roles
           "S - Search for specific goods by name\n"
           "SWID - Search for specific goods with the goods ID\n"
           "F - Filter the goods with unwanted brand".format(p_name)) #<--------------
-    if permission_stat == 3 : # admin can edit without limitation
-        print("AE - Admin Editing the goods")
-    elif permission_stat == 2 : # seller cannot use shopping cart but can change and add their goods
+    if permission_stat == 3 or permission_stat == 2 : # shopper can add , modify , delete their OWN goods while admin can do without limitaton
         print("A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
+        if permission_stat == 2 :
+            print("*** Admin can freely use those command without any limitation")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("VC - View your shopping Cart \n" #<--------------
               "EC - Edit your shopping Cart\n" #<--------------
@@ -264,26 +265,37 @@ def menu_control(access) :
 
     if control in ["V","SN","SP","SID","S","SWID"] :
         sorting_show(control)
-        
+
     elif control == "A" :
-        while add_seller(permission_stat,p_name) == False :
-            pass
+        if permission_check(permission_stat,2) : # if the user is seller
+            while add_goods(permission_stat,p_name) == False : # use the log in name as the company name to add goods
+                pass
+        elif permission_check(permission_stat,3) :
+            add_name = str(input("The name of company of the adding good :")) # admin can choose the name of company by itself
+            while add_goods(permission_stat,add_name) == False : # use the log in name as the company name to add goods
+                pass
+        else :
+            print("Access Denied : Seller and Admin ONLY")
 
     elif control == "M" :
-        if permission_check(permission_stat,2) :
+        if permission_check(permission_stat,2) or permission_check(permission_stat,3): # only admin and seller can modify goods 
             change = str(input("The change of the good is (NAME/COMPANY/PRICE/STOCK) :"))
+            if change == "COMPANY" and permission_check(permission_stat,2) :
+                print("Seller can NOT change the company of goods")
+                return False
             input_dicts = {"NAME":0,"COMPANY":2,"PRICE":3,"STOCK":4}
             if change in input_dicts :
                 id = str(input("The ID of the good is :"))
                 new_value = str(input("The new value of the good is :"))
                 modify(p_name,id,input_dicts[change],new_value)
-            elif change == 1 :
-                print("The ID of the good is NOT allowed to Change")
+            # The ID should NOT be change by anyone , even for admin
+            #elif change == 1 :
+            #    print("The ID of the good is NOT allowed to Change")
             else :
                 print("INVALID input , please try again")
 
     elif control == "D" :
-        if permission_check(permission_stat,2) :
+        if permission_check(permission_stat,2) or  permission_check(permission_stat,3): # only admin and seller can delete goods
             delete_id = str(input("The ID of the good you want to delete is :"))
             delete(p_name,delete_id)
 
@@ -292,8 +304,8 @@ def menu_control(access) :
 
 def permission_check(p,r) : # check if the permission of the log in allows to use that function
     p_dict = {1:"Access Denied : Customer Only",2:"Access Denied : Seller Only",3:"Access Denied : Admin Only"}
-    if p!=r :
-        print(p_dict[r])
+    #if p!=r :
+    #    print(p_dict[r])
     return p==r
 
 def view(data) : # output the formatted table-form of data of goods
@@ -304,19 +316,17 @@ def view(data) : # output the formatted table-form of data of goods
     for i in range(68) : print("-" , end="")
     for i in range(2) : print("")
 
-def add_seller(p,c) : # write the new data to the csv file with the company name filled
-    if p == 2 : # only seller can add goods
-        n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
-                             "*Seperate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
-        with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
-            goods = list(csv.reader(goods_info))  
-            for x in range(1,len(goods)) :
-                if id == goods[x][1] :
-                    print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
-                    return False
-        add([n,id,c,p,s])
-    else :
-        print("ACCESS DENIED : Seller ONLY")
+def add_goods(p,c) : # write the new data to the csv file with the company name filled
+    n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
+                         "*Seperate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
+    with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+        goods = list(csv.reader(goods_info))  
+        for x in range(1,len(goods)) :
+            if id == goods[x][1] :
+                print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
+                return False
+    add([n,id,c,p,s]) 
+    print("Command ADD executed with successful")
     return True
 
 def add(data) : # write the new data to the csv file
@@ -330,13 +340,14 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
-                if pos != 0 and row[2] == company and row[1] == id : # if the ID belongs to the company that logged in
+                if pos != 0 and (row[2] == company or permission_check(permission_stat,3))and row[1] == id : # if the ID belongs to the company that logged in # Admin can edit without limitation
                     lines[pos][new_pos] = new_variable # Change the data
-                    finding = True
+                    finding = True # end the finding process
         if not finding :
             print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
     writeData(lines)
+    print("Command MODIFY executed with successful")
 
 def delete(company,id) :
     finding = False
@@ -344,15 +355,15 @@ def delete(company,id) :
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
-                if pos != 0 and row[2] == company and row[1] == id :
+                if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : # seller can only delete their OWN goods while admin can delete ALL goods
                     lines.remove(row)
                     finding = True
         if not finding :
             print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
     writeData(lines)
+    print("Command DELETE executed with successful")
                 
-
 def writeData(lines) :
     with open("D:\Python\Book1.csv","w", newline='', encoding='utf-8') as goods_info :
         writer = csv.writer(goods_info) # overwrite the data into the file by replacing old data and writing new data
