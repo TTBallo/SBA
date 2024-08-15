@@ -12,7 +12,7 @@ seller_pw = ["Garden123"]
 customer_name = ["Tommy"]
 customer_pw = ["5212023"]
 customer_bday = [datetime.datetime(2023,5,21)]
-shopping_cart = []
+shopping_cart = [["NAME","ID","PRICE","Quantity","Total cost"]]
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 flag_bit = True
@@ -252,7 +252,8 @@ def menu() : # showing the commands available for different roles
         if permission_stat == 2 :
             print("*** Admin can freely use those command without any limitation")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
-        print("VC - View your shopping Cart \n" #<--------------
+        print("VC - View your shopping Cart \n"
+              "AC - Add goods to your shopping Cart \n" #<--------------
               "EC - Edit your shopping Cart\n" #<--------------
               "CO - Check Out of your shopping cart") #<--------------
     print("QUIT - Quit this application")   
@@ -295,10 +296,30 @@ def menu_control(access) :
                 print("INVALID input , please try again")
 
     elif control == "D" :
-        if permission_check(permission_stat,2) or  permission_check(permission_stat,3): # only admin and seller can delete goods
+        if permission_check(permission_stat,2) or permission_check(permission_stat,3): # only admin and seller can delete goods
             delete_id = str(input("The ID of the good you want to delete is :"))
             delete(p_name,delete_id)
 
+    elif control == "VC" :
+        if permission_check(permission_stat,1) : # only customer can use the shopping cart function
+            view(shopping_cart)
+        else :
+            print("Access Denied : Customer ONLY")
+            return False
+    
+    elif control == "AC" :
+        if permission_check(permission_stat,1) : # only customer can use the shopping cart function
+            try :
+                c_id = input("The ID of the goods :")
+                c_q = int(input("The quantity of the goods :"))
+            except ValueError :
+                print("Your input must be a integer") # error handling
+                return False
+            add_cart(c_id,c_q)
+        else :
+            print("Access Denied : Customer ONLY")
+            return False    
+          
     elif control == "QUIT" :
         flag_bit = False
 
@@ -309,11 +330,11 @@ def permission_check(p,r) : # check if the permission of the log in allows to us
     return p==r
 
 def view(data) : # output the formatted table-form of data of goods
-    for i in range(68) : print("-" , end="")
+    for i in range(70) : print("-" , end="")
     print("")
     for row in data :
-        print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>8} | '.format(row[0],row[1],row[2],row[3],row[4]))
-    for i in range(68) : print("-" , end="")
+        print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>10} | '.format(row[0],row[1],row[2],row[3],row[4]))
+    for i in range(70) : print("-" , end="")
     for i in range(2) : print("")
 
 def add_goods(p,c) : # write the new data to the csv file with the company name filled
@@ -368,6 +389,21 @@ def writeData(lines) :
     with open("D:\Python\Book1.csv","w", newline='', encoding='utf-8') as goods_info :
         writer = csv.writer(goods_info) # overwrite the data into the file by replacing old data and writing new data
         writer.writerows(lines)
+
+def add_cart(id,quantity) :
+    global shopping_cart
+    finding = False
+    with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+        goods = list(csv.reader(goods_info))  
+        for x in range(1,len(goods)) :
+            if id == goods[x][1] :
+                shopping_cart.append([goods[x][0],goods[x][1],goods[x][3],quantity,(float(goods[x][3])*float(quantity))])
+                finding = True
+                return True
+        if finding == False :
+            print("ERROR : ID do NOT exists")
+            return False
+        
 
  # Main Loop
 if __name__ == "__main__" :
