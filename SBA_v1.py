@@ -233,7 +233,7 @@ def customer_login() :
 
 # Main Menu
 def menu() : # showing the commands available for different roles
-    time.sleep(3)
+    time.sleep(1.5)
     print("")
     for i in range(50) : print("*" , end="")
     print("\nWelcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
@@ -326,7 +326,10 @@ def menu_control(access) :
                 c_id = input("The ID of the goods :")
                 c_q = int(input("The NEW quantity of the goods :"))
             except ValueError :
-                print("Your input must be a integer") # error handling
+                print("Your input must be a INTEGER") # error handling
+                return False
+            if c_q <= 0 :
+                print("ERROR : quantity can NOT be less than 1")
                 return False
             with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
                 goods = list(csv.reader(goods_info))  
@@ -384,6 +387,9 @@ def add_goods(p,c) : # write the new data to the csv file with the company name 
             if id == goods[x][1] :
                 print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
                 return False
+    if float(p) <0 or float(s) <0 :
+        print("The price or stock must NOT less than 0")
+        return False
     add([n,id,c,p,s]) 
     print("Command ADD has successfully executed")
     return True
@@ -400,10 +406,13 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
                 if pos != 0 and (row[2] == company or permission_check(permission_stat,3))and row[1] == id : # if the ID belongs to the company that logged in # Admin can edit without limitation
-                    lines[pos][new_pos] = new_variable # Change the data
-                    finding = True # end the finding process
+                    if (new_pos == 2 or new_pos == 3) and float(new_variable) >= 0 :
+                        lines[pos][new_pos] = new_variable # Change the data
+                        finding = True # end the finding process
+                    else :
+                        print("ERROR : The price or stock must NOT less than 0")
         if not finding :
-            print("The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
+            print("ERROR : The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
     writeData(lines)
     print("Command MODIFY has successfully executed")
@@ -435,13 +444,13 @@ def add_cart(id,quantity) :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
             if id == goods[x][1] : 
-                if int(goods[x][4]) >= quantity : # check if the stock is sufficient for purchase
+                if int(goods[x][4]) >= quantity > 0: # check if the stock is sufficient for purchase
                     shopping_cart.append([goods[x][0],goods[x][1],goods[x][3],quantity,(float(goods[x][3])*float(quantity))])
                     finding = True
                     print("Command ADD CART has successfully executed")
                     return True
                 else :
-                    print("ERROR : Insufficient goods for purchase")
+                    print("ERROR : Insufficient goods for purchase or Invalid amount of purchase")
                     return False
         if finding == False :
             print("ERROR : ID do NOT exists")
@@ -452,7 +461,7 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
     for pos,row in enumerate(shopping_cart) : 
         if pos != 0 and row[1] == id : # find the goods 
             shopping_cart[pos][3] = quantity # Change the quantity
-            shopping_cart[pos][4] = float(shopping_cart[pos][2])*float(shopping_cart[pos][3]) # change the total
+            shopping_cart[pos][4] = float("{:.2f}".format(float(shopping_cart[pos][2])*float(shopping_cart[pos][3]))) # change the total 
             finding = True # end the finding process
             print("Command CHANGE CART has successfully executed")
     if not finding :
@@ -464,7 +473,7 @@ def check_out() :
     for pos,row in enumerate(shopping_cart) :
         if pos != 0 : 
             total += float(shopping_cart[pos][4])
-    return total
+    return float("{:.2f}".format(total))
 
  # Main Loop
 if __name__ == "__main__" :
