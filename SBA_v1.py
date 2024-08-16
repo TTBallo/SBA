@@ -58,8 +58,8 @@ def selection_sort(raw_list,index,start) : #find the smallest item and switch
 def bubble_sort(raw_list,index,start) : #switch the nearby items 
     for i in range(start,len(raw_list)) :
         current_pos = i
-        while current_pos >= start and raw_list[current_pos][index] < raw_list[current_pos-1][index] :
-            raw_list[current_pos][index] , raw_list[current_pos-1][index] = raw_list[current_pos-1][index] ,  raw_list[current_pos][index]
+        while current_pos >= start and float(raw_list[current_pos][index]) < float(raw_list[current_pos-1][index]) :
+            raw_list[current_pos] , raw_list[current_pos-1] = raw_list[current_pos-1] ,  raw_list[current_pos]
             current_pos -=1 
 
 def insertion_sort(raw_list,index,start) : #pull the item back until find a correct place
@@ -377,7 +377,7 @@ def view(data) : # output the formatted table-form of data of goods
 
 def add_goods(p,c) : # write the new data to the csv file with the company name filled
     n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
-                         "*Seperate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
+                         "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
     with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
