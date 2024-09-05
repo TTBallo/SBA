@@ -4,18 +4,28 @@ import re
 import time
 import datetime
 
-# Global variable
+### Global variable
+permission_stat = 0 # 1:customer 2:Shopper 3:Admin
+p_name = "" # the name of the user
+p_bday = "" # the birthday of the user
+flag_bit = True
+
+# admin information
 admin_name = ["admin"]
 admin_pw = ["123"]
+
+# seller information
 seller_name = ["Garden"]
 seller_pw = ["Garden123"]
+
+# customer information
 customer_name = ["Tommy"]
 customer_pw = ["5212023"]
 customer_bday = [datetime.datetime(2023,5,21)]
 shopping_cart = [["NAME","ID","PRICE","Quantity","Total cost"]]
-permission_stat = 0 # 1:customer 2:Shopper 3:Admin
-p_name = "" # the name of the user
-flag_bit = True
+
+# goods information
+age_required = ["066"]
 
 # Searching
 def binary_search(matrix,target) : # Binary search 
@@ -215,6 +225,7 @@ def seller_login() :
     return False
 
 def customer_login() :
+    global p_bday
     global p_name
     login_name = str(input("Hi Customer , Your username is : "))
     if login_name in customer_name :
@@ -224,6 +235,7 @@ def customer_login() :
             print("")
             print("Welcome Customer {} !".format(login_name))
             p_name = login_name
+            p_bday = customer_bday[location]
             return True
         else :
             print("Your password is NOT correct , please try again")
@@ -390,9 +402,31 @@ def add_goods(p,c) : # write the new data to the csv file with the company name 
     if float(p) <0 or float(s) <0 :
         print("The price or stock must NOT less than 0")
         return False
+    while age_limit(id) == False :
+        pass
     add([n,id,c,p,s]) 
     print("Command ADD has successfully executed")
     return True
+
+def age_limit(id) : # check if the products requires 18 yrs old or above to purchase
+    age_limit = str(input("Does your product has AGE LIMITATION (Under the law of Hong Kong, intoxicating liquor must not be sold or supplied to a minor in the course of business.) (Y/N) :"))
+    if age_limit == "Y" or age_limit == "N" :
+        if age_limit == "Y" :
+            age_required.append(id) # add in the list of goods id which requires age verification while purchasing
+        return True
+    else :
+        print("Please fill in either Y/N ")
+        return False
+    
+def age_check(date) :
+    today = datetime.datetime.today()
+    age = today-date
+    if age.days >= 6570 : # Check if the user is above 18 yrs old
+        return True
+    print("Your age is under 18 \n"
+          "Under the law of Hong Kong, intoxicating liquor must not be sold or supplied to a minor in the course of business.\n"
+          "We can NOT sell this goods to you")
+    return False
 
 def add(data) : # write the new data to the csv file
     with open("D:\Python\Book1.csv","a", newline='', encoding='utf-8') as goods_info :
@@ -443,7 +477,12 @@ def add_cart(id,quantity) :
     with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
-            if id == goods[x][1] : 
+            if id == goods[x][1] :
+                if id in age_required :
+                    if age_check(p_bday) :
+                        pass
+                    else :
+                        return False 
                 if int(goods[x][4]) >= quantity > 0: # check if the stock is sufficient for purchase
                     shopping_cart.append([goods[x][0],goods[x][1],goods[x][3],quantity,(float(goods[x][3])*float(quantity))])
                     finding = True
