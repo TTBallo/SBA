@@ -3,6 +3,8 @@ import csv
 import re
 import time
 import datetime
+import random
+import uuid
 
 ### Global variable
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
@@ -250,7 +252,7 @@ def menu() : # showing the commands available for different roles
     time.sleep(1.5)
     print("")
     for i in range(50) : print("*" , end="")
-    print("\nWelcome to the Control Menu ,{}   Enjoy your time in our supermarket ! \n"
+    print("\nWelcome to the Control Menu , {} Enjoy your time in our supermarket ! \n"
           "Here are the Commands for our online market : \n"
           "V - View the available goods in our market \n"
           "SN - Sort the goods by Name \n"
@@ -368,9 +370,28 @@ def menu_control(access) :
         else :
             print("Access Denied : Customer ONLY")
             return False
+        
     elif control == "CO" :
+        global flag_bit
         total = check_out()
         print("The total amount will be ${} ".format(total))
+        CO_choice = str(input("Delivery and Pickup are available (D/P) :"))
+        if CO_choice == "P" :
+            view_pickup()
+            while not pickup_check() : # to confirm the location and time
+                pass
+            # The simulation of payment
+            payment = str(input("Please enter ur credit card number :"))
+            v_code = str(input("Please enter ur safety code :"))
+            v_date = str(input("Please enter ur expire date :"))
+            time.sleep(3)
+            print("Payment in process ... ")
+            time.sleep(3)
+            print("Payment succeed\n"
+                  f"Your CODE for this purchase is {uuid.uuid4()} \n"
+                  "Please pickup your goods with code given on the booked time at the pickup store\n"
+                  "Welcome for your next purchase !")
+            flag_bit = False
 
     elif control == "QUIT" :
         flag_bit = False
@@ -391,6 +412,16 @@ def view(data) : # output the formatted table-form of data of goods
         print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>10} | '.format(row[0],row[1],row[2],row[3],row[4]))
     for i in range(70) : print("-" , end="")
     for i in range(2) : print("")
+
+def view_pickup() :
+    with open(pickup_data,"r", encoding='utf') as pickup_L : # read the location for pickup
+        p_L = list(csv.reader(pickup_L)) 
+        for i in range(84) : print("-" , end="")
+        print("")
+        for row in p_L :
+            print('| {:>20} | {:>30} | {:>8} | {:>5} | {:>5} | '.format(row[0],row[1],row[2],row[3],row[4]))
+        for i in range(84) : print("-" , end="")
+        for i in range(2) : print("")
 
 def add_goods(p,c) : # write the new data to the csv file with the company name filled
     n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
@@ -515,6 +546,26 @@ def check_out() :
         if pos != 0 : 
             total += float(shopping_cart[pos][4])
     return float("{:.2f}".format(total))
+
+def pickup_check() : # check the pickup location and time are available
+    with open(pickup_data,"r") as data :
+        times = list(csv.reader(data))
+        name = str(input("The name of the pickup store :"))
+        h,min= input("Please input the time for the pickup\n"
+                     "with hours and minutes e.g. :09 30 :").split(" ") # input the desire time
+        for x in range(1,len(times)) :
+            if times[x][0] == name :
+                start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0)
+                end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0)
+                need_time =datetime.time(int(h),int(min),0)
+                if start <= end or (start <= need_time or need_time <= end): # return if possible for pickup
+                        print(f"The pickup will be allocated at {need_time} ")
+                        return True
+                else:
+                    print("The store is NOT at service at that time , please try another time within the service hours")
+                    return False
+        print("Store NOT found , please check the name of the available stores") # if the loop does not return , the store name is not found in the data
+        return False
 
  # Main Loop
 if __name__ == "__main__" :
