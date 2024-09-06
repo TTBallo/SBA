@@ -7,3 +7,4 @@ water,006,Vita,8.5,10
 protein_powder,007,MyProtein,595,1
 ion_water,059,Pocari,159,8
 fried_noodles,018,Indomie,22,5
+Sparkling_Wine,066,Choco_Rosso,80.75,18
