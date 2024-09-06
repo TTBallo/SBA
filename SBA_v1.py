@@ -9,7 +9,8 @@ permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 p_bday = "" # the birthday of the user
 flag_bit = True
-goods_data = "D:\SBA\SBA\goods_info.csv" #"D:\Python\Book1.csv"
+goods_data = "D:\SBA\SBA\goods_info.csv"
+pickup_data = 
 
 # admin information
 admin_name = ["admin"]
