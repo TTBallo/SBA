@@ -508,7 +508,7 @@ def add_cart(id,quantity) :
         for x in range(1,len(goods)) :
             if id == goods[x][1] :
                 if id in age_required :
-                    if age_check(p_bday) :
+                    if age_check(p_bday) : # check if the goods has age restriction
                         pass
                     else :
                         return False 
@@ -558,7 +558,7 @@ def pickup_check() : # check the pickup location and time are available
                      "with hours and minutes e.g. :13 30 :").split(" ") # input the desire time
         for x in range(1,len(times)) :
             if times[x][0] == name :
-                start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0)
+                start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0) 
                 end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0)
                 need_time =datetime.time(int(h),int(min),0).strftime('%Y-%m-%d %H:%M')
                 if start <= end or (start <= need_time or need_time <= end): # return if possible for pickup
