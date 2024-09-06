@@ -129,6 +129,7 @@ def new_user() :
         while pw_check(new_pw) is False :
             new_pw = str(input("Your password is : "))
         customer_pw.append(new_pw)
+        print("Please fill in your birthday for more discount and goods available") # only 18+ can buy alcohol
         customer_bday.append(date_input())
         return True
     else :
@@ -137,7 +138,7 @@ def new_user() :
 
 def date_input() :
     try :
-        x,y,z= input("Enter your date of Birth (YYYY/MM/DD) :").split("/")
+        x,y,z= input("Enter the date (YYYY/MM/DD) :").split("/")
         new_date = datetime.datetime(int(x),int(y),int(z))
         return new_date
     except ValueError: # error handling
@@ -380,18 +381,13 @@ def menu_control(access) :
             view_pickup()
             while not pickup_check() : # to confirm the location and time
                 pass
-            # The simulation of payment
-            payment = str(input("Please enter ur credit card number :"))
-            v_code = str(input("Please enter ur safety code :"))
-            v_date = str(input("Please enter ur expire date :"))
-            time.sleep(3)
-            print("Payment in process ... ")
-            time.sleep(3)
-            print("Payment succeed\n"
-                  f"Your CODE for this purchase is {uuid.uuid4()} \n"
-                  "Please pickup your goods with code given on the booked time at the pickup store\n"
-                  "Welcome for your next purchase !")
             flag_bit = False
+        elif CO_choice == "D" :
+            address = str(input("Your address is :"))
+            delivery(address)
+        else :
+            print("Unknown input , please retry")
+            return False
 
     elif control == "QUIT" :
         flag_bit = False
@@ -551,21 +547,59 @@ def pickup_check() : # check the pickup location and time are available
     with open(pickup_data,"r") as data :
         times = list(csv.reader(data))
         name = str(input("The name of the pickup store :"))
+        pickup_date = date_input()
+        if pickup_date < datetime.datetime.now() : # avoid the pickup date is before or in today
+            print("The date allocated must be the at least 1 day after the date of ordering")
+            return False
+        if pickup_date  > datetime.datetime.now()+ datetime.timedelta(days=30) : # avoid the pickup date is after 30 days from now on
+            print("The pickup date should be within 30 days from the date of ordering")
+            return False
         h,min= input("Please input the time for the pickup\n"
-                     "with hours and minutes e.g. :09 30 :").split(" ") # input the desire time
+                     "with hours and minutes e.g. :13 30 :").split(" ") # input the desire time
         for x in range(1,len(times)) :
             if times[x][0] == name :
                 start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0)
                 end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0)
-                need_time =datetime.time(int(h),int(min),0)
+                need_time =datetime.time(int(h),int(min),0).strftime('%Y-%m-%d %H:%M')
                 if start <= end or (start <= need_time or need_time <= end): # return if possible for pickup
-                        print(f"The pickup will be allocated at {need_time} ")
+                        payment() # pay the money through online method
+                        print(f"The pickup will be allocated at {need_time} on {pickup_date.date()}\n"
+                        "Please pickup your goods with code given on the booked time at the pickup store\n")
                         return True
                 else:
                     print("The store is NOT at service at that time , please try another time within the service hours")
                     return False
         print("Store NOT found , please check the name of the available stores") # if the loop does not return , the store name is not found in the data
         return False
+
+def delivery(address) :
+    global flag_bit
+    delivery_date = date_input()
+    if delivery_date < datetime.datetime.now()+ datetime.timedelta(days=7) :
+        print("The date of delivery must be 7 days after the ordering date"
+              "If you want to enjoy a faster delivery service , please consider our Delivery Express service")
+        return False
+    print("The delivery service available from 0900-1200 (AM) and 1400-1800(PM) ")
+    delivery_time = str(input("The time for delivery is (AM/PM) :"))
+    if delivery_time not in ["AM","PM"] :
+        print("Please fill in AM/PM")
+        return False
+    payment()
+    print(f"The address for this delivery is {address} \n"
+          f"Your delivery will be arrived on {delivery_date.strftime('%Y-%m-%d %H:%M')} at {delivery_time}")    
+    flag_bit = False
+
+def payment() :
+    # The simulation of payment
+    payment = str(input("Please enter ur credit card number :"))
+    v_code = str(input("Please enter ur safety code :"))
+    v_date = str(input("Please enter ur expire date :"))
+    time.sleep(3)
+    print("Payment in process ... ")
+    time.sleep(3)
+    print("Payment succeed\n"
+          f"Your CODE for this purchase is {uuid.uuid4()} \n" # creating an unique purchase code
+          "Welcome for your next purchase !")
 
  # Main Loop
 if __name__ == "__main__" :
