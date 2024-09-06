@@ -346,8 +346,8 @@ def menu_control(access) :
             except ValueError :
                 print("Your input must be a INTEGER") # error handling
                 return False
-            if c_q <= 0 :
-                print("ERROR : quantity can NOT be less than 1")
+            if c_q < 0 :
+                print("ERROR : quantity can NOT be less than 0")
                 return False
             with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
                 goods = list(csv.reader(goods_info))  
@@ -472,12 +472,15 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
-                if pos != 0 and (row[2] == company or permission_check(permission_stat,3))and row[1] == id : # if the ID belongs to the company that logged in # Admin can edit without limitation
-                    if (new_pos == 2 or new_pos == 3) and float(new_variable) >= 0 :
-                        lines[pos][new_pos] = new_variable # Change the data
-                        finding = True # end the finding process
-                    else :
-                        print("ERROR : The price or stock must NOT less than 0")
+                if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : # if the ID belongs to the company that logged in # Admin can edit without limitation
+                    if (new_pos == 2 or new_pos == 3) :
+                        if float(new_variable) >= 0 : # the price and stock must be larger than 0
+                            pass
+                        else :
+                            print("ERROR : The price or stock must NOT less than 0")
+                            return False
+                    lines[pos][new_pos] = new_variable # Change the data
+                    finding = True # end the finding process
         if not finding :
             print("ERROR : The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
@@ -532,6 +535,10 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
     finding = False
     for pos,row in enumerate(shopping_cart) : 
         if pos != 0 and row[1] == id : # find the goods 
+            if quantity == 0 :
+                del shopping_cart[pos]
+                print("Item has successfully been removed from the list")
+                return True
             shopping_cart[pos][3] = quantity # Change the quantity
             shopping_cart[pos][4] = float("{:.2f}".format(float(shopping_cart[pos][2])*float(shopping_cart[pos][3]))) # change the total 
             finding = True # end the finding process
@@ -580,7 +587,7 @@ def delivery(address) :
     global flag_bit
     delivery_date = date_input()
     if delivery_date < datetime.datetime.now()+ datetime.timedelta(days=7) :
-        print("The date of delivery must be 7 days after the ordering date"
+        print("The date of delivery must be 7 days after the ordering date\n"
               "If you want to enjoy a faster delivery service , please consider our Delivery Express service")
         return False
     print("The delivery service available from 0900-1200 (AM) and 1400-1800(PM) ")
