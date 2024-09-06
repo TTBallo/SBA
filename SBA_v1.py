@@ -9,6 +9,7 @@ permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 p_bday = "" # the birthday of the user
 flag_bit = True
+goods_data = "D:\SBA\SBA\goods_info.csv" #"D:\Python\Book1.csv"
 
 # admin information
 admin_name = ["admin"]
@@ -83,7 +84,7 @@ def insertion_sort(raw_list,index,start) : #pull the item back until find a corr
         raw_list[next+1] = store2d
 
 def sorting_show(way) :
-    with open("D:\Python\Book1.csv","r", newline='', encoding='utf-8-sig') as goods_info :
+    with open(goods_data,"r", newline='', encoding='utf-8-sig') as goods_info :
             goods = list(csv.reader(goods_info))     
             if way == "SID" :
                 insertion_sort(goods,1,2) 
@@ -343,7 +344,7 @@ def menu_control(access) :
             if c_q <= 0 :
                 print("ERROR : quantity can NOT be less than 1")
                 return False
-            with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+            with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
                 goods = list(csv.reader(goods_info))  
                 for x in range(1,len(goods)) :
                     if int(goods[x][4]) < c_q and goods[x][1] == c_id:
@@ -393,7 +394,7 @@ def view(data) : # output the formatted table-form of data of goods
 def add_goods(p,c) : # write the new data to the csv file with the company name filled
     n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
                          "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
-    with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+    with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
             if id == goods[x][1] :
@@ -429,7 +430,7 @@ def age_check(date) :
     return False
 
 def add(data) : # write the new data to the csv file
-    with open("D:\Python\Book1.csv","a", newline='', encoding='utf-8') as goods_info :
+    with open(goods_data,"a", newline='', encoding='utf-8') as goods_info :
         writer = csv.writer(goods_info)
         writer.writerow(data)
 
@@ -467,14 +468,14 @@ def delete(company,id) :
     print("Command DELETE has successfully executed")
                 
 def writeData(lines) :
-    with open("D:\Python\Book1.csv","w", newline='', encoding='utf-8') as goods_info :
+    with open(goods_data,"w", newline='', encoding='utf-8') as goods_info :
         writer = csv.writer(goods_info) # overwrite the data into the file by replacing old data and writing new data
         writer.writerows(lines)
 
 def add_cart(id,quantity) :
     global shopping_cart
     finding = False
-    with open("D:\Python\Book1.csv","r+", newline='', encoding='utf-8') as goods_info :
+    with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
             if id == goods[x][1] :
