@@ -273,7 +273,8 @@ def menu() : # showing the commands available for different roles
               "AC - Add goods to your shopping Cart \n" #<--------------
               "EC - Edit your shopping Cart\n" #<--------------
               "CO - Check Out of your shopping cart") #<--------------
-    print("QUIT - Quit this application")   
+    print("LO - Log out of this account\n"
+          "QUIT - Quit this application")   
  
 def menu_control(access) :
     global permission_stat
@@ -391,6 +392,9 @@ def menu_control(access) :
 
     elif control == "QUIT" :
         flag_bit = False
+    
+    elif control == "LO" :
+        login()
 
     else :
         print("Commend NOT identified")
