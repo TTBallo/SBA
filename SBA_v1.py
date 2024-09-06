@@ -10,7 +10,7 @@ p_name = "" # the name of the user
 p_bday = "" # the birthday of the user
 flag_bit = True
 goods_data = "D:\SBA\SBA\goods_info.csv"
-pickup_data = 
+pickup_data = "D:\SBA\SBA\pickup_data.csv"
 
 # admin information
 admin_name = ["admin"]
