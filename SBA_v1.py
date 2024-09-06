@@ -253,8 +253,9 @@ def menu() : # showing the commands available for different roles
     time.sleep(1.5)
     print("")
     for i in range(50) : print("*" , end="")
-    print("\nWelcome to the Control Menu , {} Enjoy your time in our supermarket ! \n"
-          "Here are the Commands for our online market : \n"
+    print("\nWelcome to the Control Menu , {} \nEnjoy your time in our supermarket ! \n"
+          #"Here are the Commands for our online market : \n"
+          "\n------GENERAL------\n"
           "V - View the available goods in our market \n"
           "SN - Sort the goods by Name \n"
           "SP - Sort the goods by Price \n"
@@ -263,18 +264,21 @@ def menu() : # showing the commands available for different roles
           "SWID - Search for specific goods with the goods ID\n"
           "F - Filter the goods with unwanted brand".format(p_name)) #<--------------
     if permission_stat == 3 or permission_stat == 2 : # shopper can add , modify , delete their OWN goods while admin can do without limitaton
-        print("A - Add goods of YOUR brand \n"
+        print("\n------GOODS MANAGEMENT------\n"
+              "A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
         if permission_stat == 2 :
             print("*** Admin can freely use those command without any limitation")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
-        print("VC - View your shopping Cart \n"
+        print("\n------SHOPPING CART------\n"
+              "VC - View your shopping Cart \n"
               "AC - Add goods to your shopping Cart \n" #<--------------
               "EC - Edit your shopping Cart\n" #<--------------
               "CO - Check Out of your shopping cart") #<--------------
-    print("LO - Log out of this account\n"
-          "QUIT - Quit this application")   
+    print("\n------ACCOUNT------\n"
+          "LO - Log out of this account\n"
+          "QUIT - Quit this application\n")   
  
 def menu_control(access) :
     global permission_stat
