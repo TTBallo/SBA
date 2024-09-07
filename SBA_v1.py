@@ -60,8 +60,24 @@ def searching(raw_list,index,item) :
     new_list = []
     new_list.append(raw_list[0])
     for row in raw_list :
-        if item in row[index] and row != raw_list[0]:
-            new_list.append(row)
+        if item in row[index] and row != raw_list[0]: # if the searching keyword is in the searching item
+            new_list.append(row) # add the result to the new list
+    return new_list
+
+def filtering(raw_list,index,item,d="A") : # default is finding the value above the given item
+    new_list = []
+    new_list.append(raw_list[0])
+    if index in [3,4] :
+        for row in raw_list :
+            if row != raw_list[0] :
+                if d == "A" and item <= float(row[index]) and row != raw_list[0]:
+                    new_list.append(row)
+                elif d == "B" and item >= float(row[index]) and row != raw_list[0]:
+                    new_list.append(row)
+    else :
+        for row in raw_list :
+            if item != row[index] and row != raw_list[0]: # if the item is not in the searching item
+                new_list.append(row)
     return new_list
 
 ###### Sorting with 2d array ######
@@ -105,6 +121,24 @@ def sorting_show(way) :
             elif way == "SWID" :
                view(searching(goods,1,str(input("The ID of the good you want : "))))
                return None
+            elif way == "F" :
+                index = str(input("Filter by Price or Stock or Company (P/S/C) :"))
+                if index in ["P","S"]:
+                    direction = str(input("You want to find a goods ABOVE or BELOW than (A/B):"))
+                    if direction not in ["A","B"] :
+                        print("ERROR : Fill in A or B only ")
+                        return False
+                    try :
+                        num = float(input("The number of filtering is :"))
+                        i = {"P":3,"S":4}
+                        view(filtering(goods,i[index],num,direction))
+                    except ValueError :
+                        print("ERROR : Number and decimals only")
+                        return False
+                elif index == "C" :
+                    avoid = str(input("The company you do NOT want to display is :"))
+                    view(filtering(goods,2,avoid))
+                return None
             view(goods)
 
 
@@ -284,9 +318,10 @@ def menu() : # showing the commands available for different roles
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("\n------SHOPPING CART------\n"
               "VC - View your shopping Cart \n"
-              "AC - Add goods to your shopping Cart \n" #<--------------
-              "EC - Edit your shopping Cart\n" #<--------------
-              "CO - Check Out of your shopping cart") #<--------------
+              "AC - Add goods to your shopping Cart \n" 
+              "EC - Edit your shopping Cart\n"
+              "DC - Delete the good in your shopping cart\n" 
+              "CO - Check Out of your shopping cart") 
     print("\n------ACCOUNT------\n"
           "LO - Log out of this account\n"
           "QUIT - Quit this application\n")   
@@ -297,7 +332,7 @@ def menu_control(access) :
     global p_name
     control = str(input("Your command is : "))
 
-    if control in ["V","SN","SP","SID","S","SWID"] :
+    if control in ["V","SN","SP","SID","S","SWID","F"] :
         sorting_show(control)
 
     elif control == "A" :
@@ -562,7 +597,7 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
     for pos,row in enumerate(shopping_cart) : 
         if pos != 0 and row[1] == id : # find the goods 
             if quantity == 0 :
-                del shopping_cart[pos]
+                del shopping_cart[pos] # if new quantity is 0 then remove the good
                 print("Item has successfully been removed from the list")
                 return True
             shopping_cart[pos][3] = quantity # Change the quantity
