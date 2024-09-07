@@ -14,6 +14,8 @@ flag_bit = True
 goods_data = "D:\SBA\SBA\goods_info.csv"
 pickup_data = "D:\SBA\SBA\pickup_data.csv"
 
+
+
 ###### admin information ######
 admin_name = ["admin"]
 admin_pw = ["123"]
@@ -30,6 +32,8 @@ shopping_cart = [["NAME","ID","PRICE","Quantity","Total cost"]]
 
 ###### goods information ######
 age_required = ["066"]
+
+
 
 ###### Searching ######
 def binary_search(matrix,target) : # Binary search 
@@ -103,6 +107,8 @@ def sorting_show(way) :
                return None
             view(goods)
 
+
+
 ###### New user and PW verification ######
 def new_user() :
     new_role = str(input("Register : S-Seller / C-Customer : "))
@@ -170,6 +176,8 @@ def pw_check(pw) :
         print("The second password is NOT the same with the first one")
         pw_double_check = str(input("Please input the password again : "))
     return True
+
+
 
 ###### Login ######
 def login() : # Main log in
@@ -248,6 +256,8 @@ def customer_login() :
     else :
         print("Username does NOT exist , please try again")
     return False
+
+
 
 ###### Main Menu ######
 def menu() : # showing the commands available for different roles
@@ -404,6 +414,8 @@ def menu_control(access) :
     else :
         print("Commend NOT identified")
 
+
+
 ###### Permission ######
 def permission_check(p,r) : # check if the permission of the log in allows to use that function
     p_dict = {1:"Access Denied : Customer Only",2:"Access Denied : Seller Only",3:"Access Denied : Admin Only"}
@@ -430,6 +442,8 @@ def age_check(date) :
           "We can NOT sell this goods to you")
     return False
 
+
+
 ###### Viewing data in format ######
 def view(data) : # output the formatted table-form of data of goods
     for i in range(70) : print("-" , end="")
@@ -448,6 +462,8 @@ def view_pickup() :
             print('| {:>20} | {:>30} | {:>8} | {:>5} | {:>5} | '.format(row[0],row[1],row[2],row[3],row[4]))
         for i in range(84) : print("-" , end="")
         for i in range(2) : print("")
+
+
 
 ###### Change in Goods ######
 def add_goods(p,c) : # write the new data to the csv file with the company name filled
@@ -514,6 +530,8 @@ def writeData(lines) :
         writer = csv.writer(goods_info) # overwrite the data into the file by replacing old data and writing new data
         writer.writerows(lines)
 
+
+
 ###### Change in Shopping Cart ######
 def add_cart(id,quantity) :
     global shopping_cart
@@ -554,6 +572,8 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
     if not finding :
         print("The ID does NOT in the Shopping cart or the ID does NOT EXIST")
         return False  
+
+
 
 ###### Check out and pick up ######
 def check_out() :
@@ -620,6 +640,8 @@ def payment() :
     print("Payment succeed\n"
           f"Your CODE for this purchase is {uuid.uuid4()} \n" # creating an unique purchase code
           "Welcome for your next purchase !")
+
+
 
 ###### Main Loop ######
 if __name__ == "__main__" :
