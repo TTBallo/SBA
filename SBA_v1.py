@@ -1,4 +1,4 @@
-# Module import
+###### Module import ######
 import csv
 import re
 import time
@@ -6,7 +6,7 @@ import datetime
 import random
 import uuid
 
-### Global variable
+###### Global variable ######
 permission_stat = 0 # 1:customer 2:Shopper 3:Admin
 p_name = "" # the name of the user
 p_bday = "" # the birthday of the user
@@ -14,24 +14,24 @@ flag_bit = True
 goods_data = "D:\SBA\SBA\goods_info.csv"
 pickup_data = "D:\SBA\SBA\pickup_data.csv"
 
-# admin information
+###### admin information ######
 admin_name = ["admin"]
 admin_pw = ["123"]
 
-# seller information
+###### seller information ######
 seller_name = ["Garden"]
 seller_pw = ["Garden123"]
 
-# customer information
+###### customer information ######
 customer_name = ["Tommy"]
 customer_pw = ["5212023"]
 customer_bday = [datetime.datetime(2023,5,21)]
 shopping_cart = [["NAME","ID","PRICE","Quantity","Total cost"]]
 
-# goods information
+###### goods information ######
 age_required = ["066"]
 
-# Searching
+###### Searching ######
 def binary_search(matrix,target) : # Binary search 
     high = len(matrix)-1
     low = 0
@@ -60,7 +60,7 @@ def searching(raw_list,index,item) :
             new_list.append(row)
     return new_list
 
-# Sorting with 2d array
+###### Sorting with 2d array ######
 def selection_sort(raw_list,index,start) : #find the smallest item and switch
     for i in range(start,len(raw_list)-1) :
         pos = i 
@@ -103,7 +103,7 @@ def sorting_show(way) :
                return None
             view(goods)
 
-# Login
+###### New user and PW verification ######
 def new_user() :
     new_role = str(input("Register : S-Seller / C-Customer : "))
     if new_role == "S" : # Create new seller
@@ -171,6 +171,7 @@ def pw_check(pw) :
         pw_double_check = str(input("Please input the password again : "))
     return True
 
+###### Login ######
 def login() : # Main log in
     global permission_stat
     for i in range(50) : print("=" , end="")
@@ -248,7 +249,7 @@ def customer_login() :
         print("Username does NOT exist , please try again")
     return False
 
-# Main Menu
+###### Main Menu ######
 def menu() : # showing the commands available for different roles
     time.sleep(1.5)
     print("")
@@ -403,48 +404,12 @@ def menu_control(access) :
     else :
         print("Commend NOT identified")
 
+###### Permission ######
 def permission_check(p,r) : # check if the permission of the log in allows to use that function
     p_dict = {1:"Access Denied : Customer Only",2:"Access Denied : Seller Only",3:"Access Denied : Admin Only"}
     #if p!=r :
     #    print(p_dict[r])
     return p==r
-
-def view(data) : # output the formatted table-form of data of goods
-    for i in range(70) : print("-" , end="")
-    print("")
-    for row in data :
-        print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>10} | '.format(row[0],row[1],row[2],row[3],row[4]))
-    for i in range(70) : print("-" , end="")
-    for i in range(2) : print("")
-
-def view_pickup() :
-    with open(pickup_data,"r", encoding='utf') as pickup_L : # read the location for pickup
-        p_L = list(csv.reader(pickup_L)) 
-        for i in range(84) : print("-" , end="")
-        print("")
-        for row in p_L :
-            print('| {:>20} | {:>30} | {:>8} | {:>5} | {:>5} | '.format(row[0],row[1],row[2],row[3],row[4]))
-        for i in range(84) : print("-" , end="")
-        for i in range(2) : print("")
-
-def add_goods(p,c) : # write the new data to the csv file with the company name filled
-    n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
-                         "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
-    with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
-        goods = list(csv.reader(goods_info))  
-        for x in range(1,len(goods)) :
-            if id == goods[x][1] :
-                print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
-                return False
-    if float(p) <0 or float(s) <0 :
-        print("The price or stock must NOT less than 0")
-        return False
-    while age_limit(id) == False :
-        pass
-    add([n,id,c,p,s]) 
-    print("Command ADD has successfully executed")
-    return True
-
 def age_limit(id) : # check if the products requires 18 yrs old or above to purchase
     age_limit = str(input("Does your product has AGE LIMITATION (Under the law of Hong Kong, intoxicating liquor must not be sold or supplied to a minor in the course of business.) (Y/N) :"))
     if age_limit == "Y" or age_limit == "N" :
@@ -464,6 +429,44 @@ def age_check(date) :
           "Under the law of Hong Kong, intoxicating liquor must not be sold or supplied to a minor in the course of business.\n"
           "We can NOT sell this goods to you")
     return False
+
+###### Viewing data in format ######
+def view(data) : # output the formatted table-form of data of goods
+    for i in range(70) : print("-" , end="")
+    print("")
+    for row in data :
+        print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>10} | '.format(row[0],row[1],row[2],row[3],row[4]))
+    for i in range(70) : print("-" , end="")
+    for i in range(2) : print("")
+
+def view_pickup() :
+    with open(pickup_data,"r", encoding='utf') as pickup_L : # read the location for pickup
+        p_L = list(csv.reader(pickup_L)) 
+        for i in range(84) : print("-" , end="")
+        print("")
+        for row in p_L :
+            print('| {:>20} | {:>30} | {:>8} | {:>5} | {:>5} | '.format(row[0],row[1],row[2],row[3],row[4]))
+        for i in range(84) : print("-" , end="")
+        for i in range(2) : print("")
+
+###### Change in Goods ######
+def add_goods(p,c) : # write the new data to the csv file with the company name filled
+    n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
+                         "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
+    with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
+        goods = list(csv.reader(goods_info))  
+        for x in range(1,len(goods)) :
+            if id == goods[x][1] :
+                print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
+                return False
+    if float(p) <0 or float(s) <0 :
+        print("The price or stock must NOT less than 0")
+        return False
+    while age_limit(id) == False :
+        pass
+    add([n,id,c,p,s]) 
+    print("Command ADD has successfully executed")
+    return True
 
 def add(data) : # write the new data to the csv file
     with open(goods_data,"a", newline='', encoding='utf-8') as goods_info :
@@ -511,6 +514,7 @@ def writeData(lines) :
         writer = csv.writer(goods_info) # overwrite the data into the file by replacing old data and writing new data
         writer.writerows(lines)
 
+###### Change in Shopping Cart ######
 def add_cart(id,quantity) :
     global shopping_cart
     finding = False
@@ -551,6 +555,7 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
         print("The ID does NOT in the Shopping cart or the ID does NOT EXIST")
         return False  
 
+###### Check out and pick up ######
 def check_out() :
     total = 0
     for pos,row in enumerate(shopping_cart) :
@@ -616,7 +621,7 @@ def payment() :
           f"Your CODE for this purchase is {uuid.uuid4()} \n" # creating an unique purchase code
           "Welcome for your next purchase !")
 
- # Main Loop
+###### Main Loop ######
 if __name__ == "__main__" :
     login()
     while flag_bit :
