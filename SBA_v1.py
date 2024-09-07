@@ -426,6 +426,8 @@ def menu_control(access) :
     elif control == "CO" :
         global flag_bit
         total = check_out()
+        if not total :
+            return False
         print("The total amount will be ${} ".format(total))
         CO_choice = str(input("Delivery and Pickup are available (D/P) :"))
         if CO_choice == "P" :
@@ -571,6 +573,11 @@ def writeData(lines) :
 def add_cart(id,quantity) :
     global shopping_cart
     finding = False
+    for item in shopping_cart :
+        if item[1] == id :
+            print("ERROR : Good already exists in the shopping cart\n"
+                  "Please use the Edit Cart function to edit")
+            return False
     with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
@@ -598,7 +605,7 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
         if pos != 0 and row[1] == id : # find the goods 
             if quantity == 0 :
                 del shopping_cart[pos] # if new quantity is 0 then remove the good
-                print("Item has successfully been removed from the list")
+                print("Item has successfully been removed from the shopping cart")
                 return True
             shopping_cart[pos][3] = quantity # Change the quantity
             shopping_cart[pos][4] = float("{:.2f}".format(float(shopping_cart[pos][2])*float(shopping_cart[pos][3]))) # change the total 
@@ -616,6 +623,9 @@ def check_out() :
     for pos,row in enumerate(shopping_cart) :
         if pos != 0 : 
             total += float(shopping_cart[pos][4])
+    if total == 0 :
+        print("ERROR : There should be at least 1 good to check out for")
+        return False
     return float("{:.2f}".format(total))
 
 def pickup_check() : # check the pickup location and time are available
@@ -630,15 +640,15 @@ def pickup_check() : # check the pickup location and time are available
             print("The pickup date should be within 30 days from the date of ordering")
             return False
         h,min= input("Please input the time for the pickup\n"
-                     "with hours and minutes e.g. :13 30 :").split(" ") # input the desire time
+                     "with hours and minutes in form (13:30):").split(":") # input the desire time
         for x in range(1,len(times)) :
             if times[x][0] == name :
                 start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0) 
                 end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0)
-                need_time =datetime.time(int(h),int(min),0).strftime('%Y-%m-%d %H:%M')
+                need_time =datetime.time(int(h),int(min),0)
                 if start <= end or (start <= need_time or need_time <= end): # return if possible for pickup
                         payment() # pay the money through online method
-                        print(f"The pickup will be allocated at {need_time} on {pickup_date.date()}\n"
+                        print(f"The pickup will be allocated at {need_time.strftime('%H:%M')} on {pickup_date.date()}\n"
                         "Please pickup your goods with code given on the booked time at the pickup store\n")
                         return True
                 else:
@@ -650,9 +660,15 @@ def pickup_check() : # check the pickup location and time are available
 def delivery(address) :
     global flag_bit
     delivery_date = date_input()
-    if delivery_date < datetime.datetime.now()+ datetime.timedelta(days=7) :
-        print("The date of delivery must be 7 days after the ordering date\n"
-              "If you want to enjoy a faster delivery service , please consider our Delivery Express service")
+    if delivery_date < datetime.datetime.now() : # the delivery date is before now
+        print("The date of delivery must not before the date of the ordering date")
+        return False
+    if delivery_date < datetime.datetime.now()+ datetime.timedelta(days=7) : # the delivery date is shorter than 7 days from now
+        print("The date of delivery must be 7 days after the ordering date\n")
+              #"If you want to enjoy a faster delivery service , please consider our Delivery Express service")
+        return False
+    if delivery_date  > datetime.datetime.now()+ datetime.timedelta(days=30) : # the delivery date is longer than 30 days from now
+        print("The delivery date should be within 30 days from the date of ordering")
         return False
     print("The delivery service available from 0900-1200 (AM) and 1400-1800(PM) ")
     delivery_time = str(input("The time for delivery is (AM/PM) :"))
@@ -661,15 +677,18 @@ def delivery(address) :
         return False
     payment()
     print(f"The address for this delivery is {address} \n"
-          f"Your delivery will be arrived on {delivery_date.strftime('%Y-%m-%d %H:%M')} at {delivery_time}")    
+          f"Your delivery will be arrived on {delivery_date.strftime('%Y-%m-%d')} at {delivery_time}")    
     flag_bit = False
 
 def payment() :
+    animation = ["■□□□□□□□□□","■■□□□□□□□□", "■■■□□□□□□□", "■■■■□□□□□□", "■■■■■□□□□□", "■■■■■■□□□□", "■■■■■■■□□□", "■■■■■■■■□□", "■■■■■■■■■□", "■■■■■■■■■■"]
     # The simulation of payment
     payment = str(input("Please enter ur credit card number :"))
     v_code = str(input("Please enter ur safety code :"))
     v_date = str(input("Please enter ur expire date :"))
-    time.sleep(3)
+    for x in animation :
+        print(x)
+        time.sleep(random.randint(0,2))
     print("Payment in process ... ")
     time.sleep(3)
     print("Payment succeed\n"
