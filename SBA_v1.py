@@ -13,6 +13,7 @@ p_bday = "" # the birthday of the user
 flag_bit = True
 goods_data = "D:\SBA\SBA\goods_info.csv"
 pickup_data = "D:\SBA\SBA\pickup_data.csv"
+purchase_records = "D:\SBA\SBA\purchase_records.csv"
 
 
 
@@ -170,7 +171,11 @@ def new_user() :
             new_pw = str(input("Your password is : "))
         customer_pw.append(new_pw)
         print("Please fill in your birthday for more discount and goods available") # only 18+ can buy alcohol
-        customer_bday.append(date_input())
+        bday = date_input()
+        while bday >= datetime.datetime.now() :
+            print("The birthday must before today")
+            bday = date_input()
+        customer_bday.append(bday)
         return True
     else :
         print("Please fill in S / C !")
@@ -183,7 +188,8 @@ def date_input() :
         return new_date
     except ValueError: # error handling
         print("RANGE of Date must between 1/1/1 to 9999/12/31 and The inputs must be INTEGER")
-        date_input()    
+        #return False   
+        return(date_input())
 
 def pw_check(pw) :
     if len(pw) <8:
@@ -216,6 +222,7 @@ def pw_check(pw) :
 ###### Login ######
 def login() : # Main log in
     global permission_stat
+    global shopping_cart
     for i in range(50) : print("=" , end="")
     role = str(input("\n You are : A - Admin / S - Seller / C - Customer / NEW - New account registration( Please fill in short form ) : "))
     if role == "A" : # Admin log in
@@ -237,6 +244,7 @@ def login() : # Main log in
     else : # Invalid input
         print("Please fill in valid short form (A/S/C/NEW) ! ")
         login()
+    shopping_cart = [["NAME","ID","PRICE","Quantity","Total cost"]] # reset the shopping cart
 
 def admin_login() :
     global p_name
@@ -313,8 +321,9 @@ def menu() : # showing the commands available for different roles
               "A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
-        if permission_stat == 2 :
-            print("*** Admin can freely use those command without any limitation")
+        if permission_stat == 2 : # admin can view the backstage data of purchases
+            print("------DATA VISUALIZATON------\n"
+                  "")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("\n------SHOPPING CART------\n"
               "VC - View your shopping Cart \n"
@@ -357,6 +366,7 @@ def menu_control(access) :
                 id = str(input("The ID of the good is :"))
                 new_value = str(input("The new value of the good is :"))
                 modify(p_name,id,input_dicts[change],new_value)
+                print("Command MODIFY has successfully executed")
             # The ID should NOT be change by anyone , even for admin
             #elif change == 1 :
             #    print("The ID of the good is NOT allowed to Change")
@@ -483,11 +493,11 @@ def age_check(date) :
 
 ###### Viewing data in format ######
 def view(data) : # output the formatted table-form of data of goods
-    for i in range(70) : print("-" , end="")
+    for i in range(91) : print("-" , end="")
     print("")
     for row in data :
-        print('| {:>19} | {:>3} | {:>12} | {:>10} | {:>10} | '.format(row[0],row[1],row[2],row[3],row[4]))
-    for i in range(70) : print("-" , end="")
+        print('| {:>40} | {:>3} | {:>12} | {:>10} | {:>10} | '.format(row[0],row[1],row[2],row[3],row[4]))
+    for i in range(91) : print("-" , end="")
     for i in range(2) : print("")
 
 def view_pickup() :
@@ -504,8 +514,11 @@ def view_pickup() :
 
 ###### Change in Goods ######
 def add_goods(p,c) : # write the new data to the csv file with the company name filled
-    n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
-                         "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
+    try :
+        n,id,p,s = str(input("Please input the NAME , ID , PRICE , STOCK of the goods\n" # input new data
+                             "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
+    except ValueError : # error handling
+        print("ERROR : Please fill in all 4 inputs with space separated")
     with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
@@ -528,12 +541,12 @@ def add(data) : # write the new data to the csv file
 
 def modify(company,id,new_pos,new_variable) : # changing the data of goods by overwriting the original data of the goods
     finding = False
-    with open('D:\Python\Book1.csv',"r", newline='', encoding='utf-8') as f:
+    with open(goods_data, newline='', encoding='utf-8') as f:
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
                 if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : # if the ID belongs to the company that logged in # Admin can edit without limitation
-                    if (new_pos == 2 or new_pos == 3) :
+                    if (new_pos == 4 or new_pos == 3) :
                         if float(new_variable) >= 0 : # the price and stock must be larger than 0
                             pass
                         else :
@@ -545,11 +558,11 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
             print("ERROR : The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
     writeData(lines)
-    print("Command MODIFY has successfully executed")
+    
 
 def delete(company,id) :
     finding = False
-    with open('D:\Python\Book1.csv',"r", newline='', encoding='utf-8') as f:
+    with open(goods_data,"r", newline='', encoding='utf-8') as f:
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
@@ -615,6 +628,17 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
         print("The ID does NOT in the Shopping cart or the ID does NOT EXIST")
         return False  
 
+###### Data visualization ######
+def add_record(TID,ID,Q,T) :
+    with open(purchase_records,"a", newline='',encoding='utf-8') as p_records , open(goods_data,"r+", newline='',encoding='utf-8') as goods_info :
+            goods = list(csv.reader(goods_info))
+            for good in goods :
+                if good[1] == ID and good != goods[0]:
+                    join_list = [TID,good[0],ID,good[3],Q,T,p_name,good[2],str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))]
+                    writer = csv.writer(p_records)
+                    writer.writerow(join_list)
+                    modify(good[2],good[1],4,int(good[4])-int(Q))
+                
 
 
 ###### Check out and pick up ######
@@ -647,7 +671,7 @@ def pickup_check() : # check the pickup location and time are available
                 end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0)
                 need_time =datetime.time(int(h),int(min),0)
                 if start <= end or (start <= need_time or need_time <= end): # return if possible for pickup
-                        payment() # pay the money through online method
+                        transaction() # pay the money through online method
                         print(f"The pickup will be allocated at {need_time.strftime('%H:%M')} on {pickup_date.date()}\n"
                         "Please pickup your goods with code given on the booked time at the pickup store\n")
                         return True
@@ -675,12 +699,12 @@ def delivery(address) :
     if delivery_time not in ["AM","PM"] :
         print("Please fill in AM/PM")
         return False
-    payment()
+    transaction()
     print(f"The address for this delivery is {address} \n"
-          f"Your delivery will be arrived on {delivery_date.strftime('%Y-%m-%d')} at {delivery_time}")    
+          f"Your delivery will be arrived on {delivery_date.strftime('%Y-%m-%d')} at {delivery_time}") 
     flag_bit = False
 
-def payment() :
+def payment(t_id) :
     animation = ["■□□□□□□□□□","■■□□□□□□□□", "■■■□□□□□□□", "■■■■□□□□□□", "■■■■■□□□□□", "■■■■■■□□□□", "■■■■■■■□□□", "■■■■■■■■□□", "■■■■■■■■■□", "■■■■■■■■■■"]
     # The simulation of payment
     payment = str(input("Please enter ur credit card number :"))
@@ -688,14 +712,19 @@ def payment() :
     v_date = str(input("Please enter ur expire date :"))
     for x in animation :
         print(x)
-        time.sleep(random.randint(0,2))
+        time.sleep(random.randint(0,0)) # for better testing
     print("Payment in process ... ")
     time.sleep(3)
     print("Payment succeed\n"
-          f"Your CODE for this purchase is {uuid.uuid4()} \n" # creating an unique purchase code
+          f"Your CODE for this purchase is {t_id} \n" 
           "Welcome for your next purchase !")
 
-
+def transaction() :
+    t_id = str(uuid.uuid4())[:8] # an unique purchase code
+    for i in shopping_cart:
+        if i != shopping_cart[0] :
+            add_record(t_id,i[1],i[3],i[4])
+    payment(t_id)
 
 ###### Main Loop ######
 if __name__ == "__main__" :
