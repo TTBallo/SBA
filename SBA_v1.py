@@ -315,15 +315,17 @@ def menu() : # showing the commands available for different roles
           "SID - Sort the goods by the ID\n"
           "S - Search for specific goods by name\n"
           "SWID - Search for specific goods with the goods ID\n"
-          "F - Filter the goods with unwanted brand".format(p_name)) #<--------------
+          "F - Filter the goods with unwanted brand".format(p_name))
     if permission_stat == 3 or permission_stat == 2 : # shopper can add , modify , delete their OWN goods while admin can do without limitaton
         print("\n------GOODS MANAGEMENT------\n"
               "A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
-        if permission_stat == 2 : # admin can view the backstage data of purchases
-            print("------DATA VISUALIZATON------\n"
-                  "")
+        if permission_stat == 3 : # admin can view the backstage data of purchases
+            print("\n------DATA VISUALIZATON------\n"
+                  "T - Show the Total Sales of all the goods\n"
+                  "TQ - Show the Top quantity sold Good\n"
+                  "TS - Show the Top Sales Good\n")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("\n------SHOPPING CART------\n"
               "VC - View your shopping Cart \n"
@@ -353,7 +355,7 @@ def menu_control(access) :
             while add_goods(permission_stat,add_name) == False : # use the log in name as the company name to add goods
                 pass
         else :
-            print("Access Denied : Seller and Admin ONLY")
+            print("Access Denied : Admin and Seller ONLY")
 
     elif control == "M" :
         if permission_check(permission_stat,2) or permission_check(permission_stat,3): # only admin and seller can modify goods 
@@ -372,12 +374,28 @@ def menu_control(access) :
             #    print("The ID of the good is NOT allowed to Change")
             else :
                 print("INVALID input , please try again")
+        else :
+            print("Access Denied : Admin and Seller ONLY")
 
     elif control == "D" :
         if permission_check(permission_stat,2) or permission_check(permission_stat,3): # only admin and seller can delete goods
             delete_id = str(input("The ID of the good you want to delete is :"))
             delete(p_name,delete_id)
+        else :
+            print("Access Denied : Admin and Seller ONLY")
 
+    elif control == "T" :
+        if permission_check(permission_stat,3) :
+            print("The total sales of all the goods is {}".format(total_sales()))
+        else :
+            print("Access Denied : Admin ONLY")
+
+    elif control in ["TQ","TS"]:
+        if permission_check(permission_stat,3) :
+            sales(control)
+        else :
+            print("Access Denied : Admin ONLY")
+        
     elif control == "VC" :
         if permission_check(permission_stat,1) : # only customer can use the shopping cart function
             view(shopping_cart)
@@ -629,26 +647,60 @@ def change_cart(id,quantity) : # changing the data of goods by overwriting the o
         return False  
 
 ###### Data visualization ######
-def add_record(TID,ID,Q,T) :
+def add_record(TID,ID,Q,T) : # add a record in the purchase record for each good
     with open(purchase_records,"a", newline='',encoding='utf-8') as p_records , open(goods_data,"r+", newline='',encoding='utf-8') as goods_info :
             goods = list(csv.reader(goods_info))
             for good in goods :
                 if good[1] == ID and good != goods[0]:
-                    join_list = [TID,good[0],ID,good[3],Q,T,p_name,good[2],str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))]
+                    join_list = [TID,good[0],ID,good[3],Q,T,p_name,good[2],str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))] # join the goods_info with the goods in shopping cart
                     writer = csv.writer(p_records)
                     writer.writerow(join_list)
-                    modify(good[2],good[1],4,int(good[4])-int(Q))
-                
+                    modify(good[2],good[1],4,int(good[4])-int(Q)) # minus the quantity of the purchased goods in the goods_info
 
+def total_sales() :
+    with open(purchase_records,"r", newline='',encoding='utf-8') as p_records :
+        records = list(csv.reader(p_records))
+        total_s = 0
+        for x in records :
+            if x != records[0] :
+                total_s += float(x[5])      
+        return total_s
 
-###### Check out and pick up ######
+def sales(t) :
+    with open(purchase_records,"r", newline='',encoding='utf-8') as p_records :
+        records = list(csv.reader(p_records))
+        sales_dict = {}
+        quantity_dict = {}
+        for row in records :
+            if row != records[0] :
+                sales_dict[row[1]] = 0
+                quantity_dict[row[1]] = 0
+        for row in records :
+            if row != records[0] :
+                sales_dict[row[1]] += float(row[5]) # sum up all the sales of each item
+                quantity_dict[row[1]] += int(row[4]) # sum up all the quantity sold of each item
+
+        if t == "TS" :
+            for name , sale in sales_dict.items() :
+                print("The sales of {} is {:.2f}".format(name,sale)) # showing the sales data
+            time.sleep(2)
+            print("The top sales among all the goods is {} with {} dollars".format(max(sales_dict, key=sales_dict.get),sales_dict[max(sales_dict, key=sales_dict.get)]))
+            time.sleep(2)
+        if t == "TQ" :
+            for name , q in quantity_dict.items() :
+                print("The quantity sold of {} is {}".format(name,q)) # showing the quantity sold data
+            time.sleep(2)
+            print("The most sold good among all the goods is {} with {} pieces".format(max(quantity_dict, key=quantity_dict.get),quantity_dict[max(quantity_dict, key=quantity_dict.get)]))
+            time.sleep(2)
+        
+###### Check out , pick up , payment ######
 def check_out() :
     total = 0
     for pos,row in enumerate(shopping_cart) :
         if pos != 0 : 
-            total += float(shopping_cart[pos][4])
+            total += float(shopping_cart[pos][4]) # find the sum of all the goods
     if total == 0 :
-        print("ERROR : There should be at least 1 good to check out for")
+        print("ERROR : There should be at least 1 good to check out for") # there must be something for check out
         return False
     return float("{:.2f}".format(total))
 
@@ -667,8 +719,8 @@ def pickup_check() : # check the pickup location and time are available
                      "with hours and minutes in form (13:30):").split(":") # input the desire time
         for x in range(1,len(times)) :
             if times[x][0] == name :
-                start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0) 
-                end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0)
+                start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0) # extracting the hour
+                end = datetime.time(int(times[x][4][:2]),int(times[x][4][2:]),0) # extracting the minute
                 need_time =datetime.time(int(h),int(min),0)
                 if start <= end or (start <= need_time or need_time <= end): # return if possible for pickup
                         transaction() # pay the money through online method
@@ -712,7 +764,7 @@ def payment(t_id) :
     v_date = str(input("Please enter ur expire date :"))
     for x in animation :
         print(x)
-        time.sleep(random.randint(0,0)) # for better testing
+        time.sleep(random.randint(0,2)) # simulation real payment
     print("Payment in process ... ")
     time.sleep(3)
     print("Payment succeed\n"
@@ -723,7 +775,7 @@ def transaction() :
     t_id = str(uuid.uuid4())[:8] # an unique purchase code
     for i in shopping_cart:
         if i != shopping_cart[0] :
-            add_record(t_id,i[1],i[3],i[4])
+            add_record(t_id,i[1],i[3],i[4]) 
     payment(t_id)
 
 ###### Main Loop ######
