@@ -325,7 +325,8 @@ def menu() : # showing the commands available for different roles
             print("\n------DATA VISUALIZATON------\n"
                   "T - Show the Total Sales of all the goods\n"
                   "TQ - Show the Top quantity sold Good\n"
-                  "TS - Show the Top Sales Good\n")
+                  "TS - Show the Top Sales Good\n"
+                  "TC - Show the Company with the most cases sold\n")
     elif permission_stat == 1 : # customer can use shopping cart to buy goods
         print("\n------SHOPPING CART------\n"
               "VC - View your shopping Cart \n"
@@ -390,7 +391,7 @@ def menu_control(access) :
         else :
             print("Access Denied : Admin ONLY")
 
-    elif control in ["TQ","TS"]:
+    elif control in ["TQ","TS","TC"]:
         if permission_check(permission_stat,3) :
             sales(control)
         else :
@@ -527,7 +528,6 @@ def view_pickup() :
             print('| {:>20} | {:>30} | {:>8} | {:>5} | {:>5} | '.format(row[0],row[1],row[2],row[3],row[4]))
         for i in range(84) : print("-" , end="")
         for i in range(2) : print("")
-
 
 
 ###### Change in Goods ######
@@ -671,15 +671,17 @@ def sales(t) :
         records = list(csv.reader(p_records))
         sales_dict = {}
         quantity_dict = {}
+        company_dict = {}
         for row in records :
             if row != records[0] :
                 sales_dict[row[1]] = 0
                 quantity_dict[row[1]] = 0
+                company_dict[row[7]] = 0
         for row in records :
             if row != records[0] :
                 sales_dict[row[1]] += float(row[5]) # sum up all the sales of each item
                 quantity_dict[row[1]] += int(row[4]) # sum up all the quantity sold of each item
-
+                company_dict[row[7]] += 1 # sum up all the transaction for each company
         if t == "TS" :
             for name , sale in sales_dict.items() :
                 print("The sales of {} is {:.2f}".format(name,sale)) # showing the sales data
@@ -691,6 +693,12 @@ def sales(t) :
                 print("The quantity sold of {} is {}".format(name,q)) # showing the quantity sold data
             time.sleep(2)
             print("The most sold good among all the goods is {} with {} pieces".format(max(quantity_dict, key=quantity_dict.get),quantity_dict[max(quantity_dict, key=quantity_dict.get)]))
+            time.sleep(2)
+        if t == "TC" :
+            for name , q in company_dict.items() :
+                print("The cases sold of {} is {}".format(name,q)) # showing the quantity sold data
+            time.sleep(2)
+            print("The most sale Company is {} with {} cases".format(max(company_dict, key=company_dict.get),company_dict[max(company_dict, key=company_dict.get)]))
             time.sleep(2)
         
 ###### Check out , pick up , payment ######
