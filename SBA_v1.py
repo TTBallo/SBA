@@ -79,13 +79,13 @@ def filtering(raw_list,index,item,d="A") : # default is finding the value above 
     if index in [3,4] :
         for row in raw_list :
             if row != raw_list[0] :
-                if d == "A" and item <= float(row[index]) and row != raw_list[0]: # finding the opposite result and delete it from the list
+                if d == "A" and item <= float(row[index]) and row != raw_list[0]: # finding the result and add it to the list
                     new_list.append(row)
                 elif d == "B" and item >= float(row[index]) and row != raw_list[0]:
                     new_list.append(row)
     else :
         for row in raw_list :
-            if item == row[index] and row != raw_list[0]: # if the item is not in the searching item
+            if item == row[index] and row != raw_list[0]: # if the company is in the searching item
                 new_list.append(row)
     return new_list
 
@@ -133,7 +133,6 @@ def sorting_show(way) :
             elif way == "F" :
                 new_list = goods
                 print("Lets find out your desired good !")
-
                 # price checking
                 print("Price :")
                 direction1 = str(input("ABOVE or BELOW than or No need(A/B/N):"))
@@ -242,7 +241,7 @@ def pw_check(pw) :
     if pw.count(' ') > 0 :
         print("No spaces are allowed")
         return False
-    pw_double_check = str(input("Please input the password again :")) # data verificaton by entering the data twice
+    pw_double_check = str(input("Please input the password again :")) # data verification by entering the data twice
     while pw_double_check != pw :
         print("The second password is NOT the same with the first one")
         pw_double_check = str(input("Please input the password again : "))
@@ -347,7 +346,8 @@ def menu() : # showing the commands available for different roles
           "S - Search for specific goods by name\n"
           "SWID - Search for specific goods with the goods ID\n"
           "F - Filter the goods with unwanted brand".format(p_name))
-    if permission_stat == 3 or permission_stat == 2 : # shopper can add , modify , delete their OWN goods while admin can do without limitation
+    if permission_stat == 3 or permission_stat == 2 :
+        # seller can add , modify , delete their OWN goods while admin can do without limitation 
         print("\n------GOODS MANAGEMENT------\n"
               "A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
@@ -473,9 +473,10 @@ def menu_control(access) :
     elif control == "DC" :
         if permission_check(permission_stat,1) :
             c_id = input("The ID of the goods :")
-            for x in range(len(shopping_cart)) :
-                if shopping_cart[x][1] == c_id :
-                    shopping_cart.pop(shopping_cart[x])
+            for pos in range(len(shopping_cart)) :
+                if shopping_cart[pos][1] == c_id :
+                    shopping_cart.pop(pos)
+                    print("Command DC has successfully executed")
                     return True
             print("ERROR : ID not found in the shopping cart")
             return False 
@@ -520,7 +521,8 @@ def permission_check(p,r) : # check if the permission of the log in allows to us
     #    print(p_dict[r])
     return p==r
 def age_limit(id) : # check if the products requires 18 yrs old or above to purchase
-    age_limit = str(input("Does your product has AGE LIMITATION (Under the law of Hong Kong, intoxicating liquor must not be sold or supplied to a minor in the course of business.) (Y/N) :"))
+    age_limit = str(input("Does your product has AGE LIMITATION\n"
+                          "(Under the law of Hong Kong, intoxicating liquor must not be sold or supplied to a minor in the course of business.) (Y/N) :"))
     if age_limit == "Y" or age_limit == "N" :
         if age_limit == "Y" :
             age_required.append(id) # add in the list of goods id which requires age verification while purchasing
@@ -568,13 +570,16 @@ def add_goods(p,c) : # write the new data to the csv file with the company name 
                              "*Separate by SPACE* e.g.Banana 001 10 1 :")).split(" ")
     except ValueError : # error handling
         print("ERROR : Please fill in all 4 inputs with space separated")
+        print("//////////////////////////")
+        return False
     with open(goods_data,"r+", newline='', encoding='utf-8') as goods_info :
         goods = list(csv.reader(goods_info))  
         for x in range(1,len(goods)) :
             if id == goods[x][1] :
                 print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
+                print("//////////////////////////")
                 return False
-    if float(p) <0 or float(s) <0 :
+    if float(p) <=0 or float(s) <=0 :
         print("The price or stock must NOT less than 0")
         return False
     while age_limit(id) == False :
@@ -594,7 +599,8 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
-                if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : # if the ID belongs to the company that logged in # Admin can edit without limitation
+                if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : 
+                # if the ID belongs to the company that logged in # Admin can edit without limitation
                     if (new_pos == 4 or new_pos == 3) :
                         if float(new_variable) >= 0 : # the price and stock must be larger than 0
                             pass
@@ -615,7 +621,8 @@ def delete(company,id) :
         r = csv.reader(f) #read the original data
         lines = list(r) #change the raw data into lists for better indexation
         for pos,row in enumerate(lines) :
-                if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : # seller can only delete their OWN goods while admin can delete ALL goods
+                if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : 
+                    # seller can only delete their OWN goods while admin can delete ALL goods
                     lines.remove(row)
                     finding = True
         if not finding :
@@ -784,7 +791,6 @@ def delivery(address) :
         return False
     if delivery_date < datetime.datetime.now()+ datetime.timedelta(days=7) : # the delivery date is shorter than 7 days from now
         print("The date of delivery must be 7 days after the ordering date\n")
-              #"If you want to enjoy a faster delivery service , please consider our Delivery Express service")
         return False
     if delivery_date  > datetime.datetime.now()+ datetime.timedelta(days=30) : # the delivery date is longer than 30 days from now
         print("The delivery date should be within 30 days from the date of ordering")
