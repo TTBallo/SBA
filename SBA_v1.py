@@ -65,19 +65,27 @@ def searching(raw_list,index,item) :
             new_list.append(row) # add the result to the new list
     return new_list
 
+def compare(raw_list1,raw_list2) : #find the repeated items in the first list
+    new_list = []
+    for pos1,item1 in enumerate(raw_list1) :
+        for pos2,item2 in enumerate(raw_list2) :
+            if item1[1] == item2[1] : # check if the item in the first list is in the second list
+                new_list.append(item1) 
+    return new_list
+
 def filtering(raw_list,index,item,d="A") : # default is finding the value above the given item
     new_list = []
     new_list.append(raw_list[0])
     if index in [3,4] :
         for row in raw_list :
             if row != raw_list[0] :
-                if d == "A" and item <= float(row[index]) and row != raw_list[0]:
+                if d == "A" and item <= float(row[index]) and row != raw_list[0]: # finding the opposite result and delete it from the list
                     new_list.append(row)
                 elif d == "B" and item >= float(row[index]) and row != raw_list[0]:
                     new_list.append(row)
     else :
         for row in raw_list :
-            if item != row[index] and row != raw_list[0]: # if the item is not in the searching item
+            if item == row[index] and row != raw_list[0]: # if the item is not in the searching item
                 new_list.append(row)
     return new_list
 
@@ -123,22 +131,45 @@ def sorting_show(way) :
                view(searching(goods,1,str(input("The ID of the good you want : "))))
                return None
             elif way == "F" :
-                index = str(input("Filter by Price or Stock or Company (P/S/C) :"))
-                if index in ["P","S"]:
-                    direction = str(input("You want to find a goods ABOVE or BELOW than (A/B):"))
-                    if direction not in ["A","B"] :
-                        print("ERROR : Fill in A or B only ")
-                        return False
+                new_list = goods
+                print("Lets find out your desired good !")
+
+                # price checking
+                print("Price :")
+                direction1 = str(input("ABOVE or BELOW than or No need(A/B/N):"))
+                if direction1 not in ["A","B","N"] : # check if the input is valid for price checking
+                    print("ERROR : Fill in A or B or N only ")
+                    return False
+                if direction1 == "N" :
+                    pass
+                else :
                     try :
-                        num = float(input("The number of filtering is :"))
-                        i = {"P":3,"S":4}
-                        view(filtering(goods,i[index],num,direction))
+                        num = float(input("The price desired :"))
+                        new_list = compare(new_list,(filtering(goods,3,num,direction1))) # filter out the items not in the desired price range
+                    except ValueError :
+                        print("ERROR : Number and decimals only") # verification
+                        return False
+                # stock checking
+                print("Stock :")
+                direction2 = str(input("ABOVE or BELOW than or No need(A/B/N):")) # check if the input is valid for stock checking
+                if direction2 not in ["A","B","N"] : # check if the input is valid
+                    print("ERROR : Fill in A or B or N only ")
+                    return False
+                if direction2 == "N" :
+                    pass
+                else :
+                    try :
+                        num = float(input("The stock desired is :"))
+                        new_list = compare(new_list,(filtering(goods,4,num,direction2)))
                     except ValueError :
                         print("ERROR : Number and decimals only")
                         return False
-                elif index == "C" :
-                    avoid = str(input("The company you do NOT want to display is :"))
-                    view(filtering(goods,2,avoid))
+                avoid = str(input("The company you want to display is (N - No need):")) # find the desired company if needed
+                if avoid == "N" :
+                    view(new_list)
+                    return None
+                new_list = compare(new_list,filtering(goods,2,avoid))
+                view(new_list) # view the new list if no company is required
                 return None
             view(goods)
 
@@ -316,13 +347,13 @@ def menu() : # showing the commands available for different roles
           "S - Search for specific goods by name\n"
           "SWID - Search for specific goods with the goods ID\n"
           "F - Filter the goods with unwanted brand".format(p_name))
-    if permission_stat == 3 or permission_stat == 2 : # shopper can add , modify , delete their OWN goods while admin can do without limitaton
+    if permission_stat == 3 or permission_stat == 2 : # shopper can add , modify , delete their OWN goods while admin can do without limitation
         print("\n------GOODS MANAGEMENT------\n"
               "A - Add goods of YOUR brand \n"
               "M - Modify the status of goods by YOUR brand \n"
               "D - Delete the goods by YOUR brand")
         if permission_stat == 3 : # admin can view the backstage data of purchases
-            print("\n------DATA VISUALIZATON------\n"
+            print("\n------DATA VISUALIZATION------\n"
                   "T - Show the Total Sales of all the goods\n"
                   "TQ - Show the Top quantity sold Good\n"
                   "TS - Show the Top Sales Good\n"
@@ -723,8 +754,12 @@ def pickup_check() : # check the pickup location and time are available
         if pickup_date  > datetime.datetime.now()+ datetime.timedelta(days=30) : # avoid the pickup date is after 30 days from now on
             print("The pickup date should be within 30 days from the date of ordering")
             return False
-        h,min= input("Please input the time for the pickup\n"
-                     "with hours and minutes in form (13:30):").split(":") # input the desire time
+        try :
+            h,min= input("Please input the time for the pickup\n"
+                         "with hours and minutes in form (13:30):").split(":") # input the desire time
+        except ValueError :
+            print("Please fill in the data with format")
+            return False
         for x in range(1,len(times)) :
             if times[x][0] == name :
                 start = datetime.time(int(times[x][3][:2]), int(times[x][3][2:]), 0) # extracting the hour
