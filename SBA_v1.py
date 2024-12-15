@@ -254,7 +254,7 @@ def login() : # Main log in
     global permission_stat
     global shopping_cart
     for i in range(50) : print("=" , end="")
-    role = str(input("\n You are : A - Admin / S - Seller / C - Customer / NEW - New account registration( Please fill in short form ) : "))
+    role = str(input("\n You are : A - Admin / S - Seller / C - Customer / NEW - New account registration ( Please fill in short form ) : "))
     if role == "A" : # Admin log in
         while admin_login() == False :
             pass
@@ -399,8 +399,8 @@ def menu_control(access) :
             if change in input_dicts :
                 id = str(input("The ID of the good is :"))
                 new_value = str(input("The new value of the good is :"))
-                modify(p_name,id,input_dicts[change],new_value)
-                print("Command MODIFY has successfully executed")
+                if modify(p_name,id,input_dicts[change],new_value) :
+                    print("Command MODIFY has successfully executed")
             # The ID should NOT be change by anyone , even for admin
             #elif change == 1 :
             #    print("The ID of the good is NOT allowed to Change")
@@ -579,8 +579,14 @@ def add_goods(p,c) : # write the new data to the csv file with the company name 
                 print("ERROR : The ID of the good should be UNIQUE ") # search if any repeat of ID
                 print("//////////////////////////")
                 return False
-    if float(p) <=0 or float(s) <=0 :
-        print("The price or stock must NOT less than 0")
+    try :
+        if float(p) <=0 or float(s) <=0 :
+            print("The price or stock must NOT less than 0")
+            return False
+    except ValueError:
+        print("ERROR : Your input for the Price and Stock must be in Integers or Decimals")
+        print("//////////////////////////")
+        time.sleep(3)
         return False
     while age_limit(id) == False :
         pass
@@ -601,14 +607,20 @@ def modify(company,id,new_pos,new_variable) : # changing the data of goods by ov
         for pos,row in enumerate(lines) :
                 if pos != 0 and (row[2] == company or permission_check(permission_stat,3)) and row[1] == id : 
                 # if the ID belongs to the company that logged in # Admin can edit without limitation
-                    if (new_pos == 4 or new_pos == 3) :
-                        if float(new_variable) >= 0 : # the price and stock must be larger than 0
-                            pass
-                        else :
-                            print("ERROR : The price or stock must NOT less than 0")
-                            return False
+                    new_pos_dict = {4:0,3:1}
+                    try :
+                        if (new_pos == 4 or new_pos == 3) :
+                            if float(new_variable) >= new_pos_dict[new_pos] : # the price must be larger than 1 and stock must be larger than 0
+                                pass
+                            else :
+                                print("ERROR : the Price must be larger than 1 and Stock must be larger than 0")
+                                return False
+                    except ValueError :
+                        print("ERROR : Your input must be a integer or decimals")
+                        return False
                     lines[pos][new_pos] = new_variable # Change the data
                     finding = True # end the finding process
+                    return True
         if not finding :
             print("ERROR : The ID does NOT BELONG to YOUR Company or the ID does NOT EXIST")
             return False
